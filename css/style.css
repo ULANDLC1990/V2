@@ -790,3 +790,14 @@ html, body {
 }
 .ps-multi { color: #9ca3af; font-style: italic; }
 .rl-table tbody tr.ps-child td:nth-child(2) { padding-left: 2.4rem; }
+
+/* ===== Полосы прокрутки скрыты везде, прокрутка колесом, тачпадом и пальцем работает как раньше ===== */
+* {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* старый Edge */
+}
+*::-webkit-scrollbar {
+  display: none;                /* Chrome, Edge, Safari */
+  width: 0;
+  height: 0;
+}
