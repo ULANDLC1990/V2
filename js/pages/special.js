@@ -82,7 +82,7 @@ const MARKUP = `
 </div>`;
 
 const STYLE = `
-#specialPage { max-width: 56rem; margin: 0 auto; }
+#specialPage { width: 100%; max-width: 56rem; margin: 0 auto; }
 #specialPage .sp-row { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: flex-end; }
 #specialPage .sp-grow { flex: 1 1 14rem; min-width: 0; }
 #specialPage .sp-end { justify-content: flex-end; }
