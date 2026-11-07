@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+  <title>LCDR HUB v2</title>
+  <link rel="icon" href="icon.jpg">
+  <!-- Установка как приложения -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="LCDR">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- Верхняя панель -->
+    <header class="topbar">
+      <div class="brand"></div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+      <div class="page-title" id="pageTitle"></div>
+    </header>
+
+    <!-- Боковое меню -->
+    <aside class="sidebar" id="sidebar">
+      <nav>
+        <div class="nav-group">
+          <button class="nav-item nav-parent">
+            <span class="label" data-i18n="print">Print</span>
+            <span class="arrow">▼</span>
+          </button>
+          <div class="submenu">
+            <a href="#" class="nav-item sub" data-page="final1">
+              <span class="label" data-i18n="final1">Final inspection station I</span>
+            </a>
+            <a href="#" class="nav-item sub" data-page="final2">
+              <span class="label" data-i18n="final2">Final inspection station II</span>
+            </a>
+            <a href="#" class="nav-item sub" data-page="special">
+              <span class="label" data-i18n="special">Special Label</span>
+            </a>
+            <a href="#" class="nav-item sub" data-page="label">
+              <span class="label" data-i18n="panelLabel">Panel Label</span>
+            </a>
+            <!-- Скрытая вкладка: появляется по Alt+Q -->
+            <a href="#" class="nav-item sub" id="secretTab" data-page="secret" style="display:none">
+              <span class="label" data-i18n="secret">Repair Log</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <button class="nav-item nav-parent">
+            <span class="label" data-i18n="repairCenter">LCD Repair Center</span>
+            <span class="arrow">▼</span>
+          </button>
+          <div class="submenu">
+            <a href="#" class="nav-item sub" data-page="live">
+              <span class="label" data-i18n="statDay">Statistic per day</span>
+            </a>
+            <a href="#" class="nav-item sub" data-page="stats">
+              <span class="label" data-i18n="stats">Statistic</span>
+            </a>
+          </div>
+        </div>
+
+        <a href="#" class="nav-item" data-page="parts">
+          <span class="label" data-i18n="repairBase">LCD Repair Center Base</span>
+        </a>
+
+        <a href="#" class="nav-item" data-page="panelsn">
+          <span class="label" data-i18n="panelsn">Filter</span>
+        </a>
+
+        <a href="#" class="nav-item" data-page="photo">
+          <span class="label" data-i18n="photo">Photo</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Основная область -->
+    <main class="main">
+      <div class="tabs" id="tabs"></div>
+      <section class="content" id="content"></section>
+      <section class="label-page" id="labelPage" style="display:none"></section>
+      <section class="label-page" id="pnbasePage" style="display:none"></section>
+      <section class="label-page" id="specialPage" style="display:none"></section>
+      <section class="label-page" id="livePage" style="display:none"></section>
+      <section class="label-page" id="statsPage" style="display:none"></section>
+      <section class="label-page" id="final1Page" style="display:none"></section>
+      <section class="label-page" id="final2Page" style="display:none"></section>
+      <section class="label-page" id="secretPage" style="display:none"></section>
+      <section class="label-page" id="photoPage" style="display:none"></section>
+      <section class="label-page" id="panelsnPage" style="display:none"></section>
+    </main>
+
+  </div>
+
+  <!-- Библиотеки (обычные скрипты, дают глобальные window.supabase, JsBarcode, XLSX) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Состояние сайта и журнал ошибок: отдельным модулем и первым,
+       чтобы поймать ошибку, даже если не загрузится основной граф модулей -->
+  <script type="module" src="js/health.js"></script>
+
+  <!-- Весь остальной сайт: точка входа подтягивает модули сама -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
