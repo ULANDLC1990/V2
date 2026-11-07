@@ -94,21 +94,32 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.lang-select {
+.lang-select { display: none; }
+
+/* Флаги языков (создаёт js/app.js) */
+#langFlags {
+  display: flex;
+  gap: 6px;
   margin-left: auto;
   flex-shrink: 0;
-  padding: 0.25rem 0.4rem;
-  border: 1px solid #374151;
-  border-radius: 6px;
-  background: #0e1822;
-  color: #ffffff;
-  font: inherit;
-  font-size: 0.85rem;
-  cursor: pointer;
 }
-.lang-select option {
-  background: #0e1822;
-  color: #ffffff;
+#langFlags button {
+  width: 2.2rem;
+  height: 1.7rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(17, 24, 39, 0.85);
+  opacity: 0.55;
+  cursor: pointer;
+  overflow: hidden;
+}
+#langFlags button svg { display: block; width: 100%; height: 100%; }
+#langFlags button:hover { opacity: 0.85; }
+#langFlags button.active {
+  opacity: 1;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.55);
 }
 
 /* ===== Боковое меню ===== */

@@ -50,12 +50,25 @@ export function initApp(modules = {}) {
 
   /* ---------- Язык ---------- */
 
-  const langSelect = document.createElement('select');
-  langSelect.className = 'lang-select';
-  langSelect.innerHTML = Object.entries(LANG_NAMES)
-    .map(([code, name]) => `<option value="${code}">${name}</option>`)
-    .join('');
-  document.querySelector('.topbar').appendChild(langSelect);
+  // Флаги в SVG: эмодзи-флаги не рисуются в Windows, там видны только буквы
+  const FLAG_SVG = {
+    uk: '<svg viewBox="0 0 30 20"><rect width="30" height="10" fill="#0057b7"/><rect y="10" width="30" height="10" fill="#ffd700"/></svg>',
+    pl: '<svg viewBox="0 0 30 20"><rect width="30" height="10" fill="#fff"/><rect y="10" width="30" height="10" fill="#dc143c"/></svg>',
+    en: '<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0 0L60 40M60 0L0 40" stroke="#fff" stroke-width="8"/><path d="M0 0L60 40M60 0L0 40" stroke="#c8102e" stroke-width="3"/><path d="M30 0V40M0 20H60" stroke="#fff" stroke-width="13"/><path d="M30 0V40M0 20H60" stroke="#c8102e" stroke-width="8"/></svg>'
+  };
+  const langFlags = document.createElement('div');
+  langFlags.id = 'langFlags';
+  Object.keys(LANG_NAMES).forEach((code) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.lang = code;
+    b.title = LANG_NAMES[code];
+    b.setAttribute('aria-label', LANG_NAMES[code]);
+    b.innerHTML = FLAG_SVG[code];
+    b.addEventListener('click', () => setLang(code));
+    langFlags.appendChild(b);
+  });
+  document.querySelector('.topbar').appendChild(langFlags);
 
   function pageTitle(id) {
     const page = PAGES[id];
@@ -69,8 +82,10 @@ export function initApp(modules = {}) {
       el.textContent = el.dataset.i18n === 'statDay' ? todayDisplay() : t(el.dataset.i18n);
     });
     menuToggle.setAttribute('aria-label', t('menu'));
-    langSelect.title = t('language');
-    langSelect.value = getLang();
+    langFlags.title = t('language');
+    Array.prototype.forEach.call(langFlags.children, (b) => {
+      b.classList.toggle('active', b.dataset.lang === getLang());
+    });
   }
 
   /* ---------- Отрисовка ---------- */
@@ -176,7 +191,6 @@ export function initApp(modules = {}) {
     else activate(id);
   });
 
-  langSelect.addEventListener('change', (e) => setLang(e.target.value));
 
   // Смена языка из любого места (список, флаги на телефоне): обновляем меню и заголовки
   onLangChange(() => { applySiteText(); render(); });

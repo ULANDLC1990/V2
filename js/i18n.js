@@ -17,18 +17,12 @@
 export const DEFAULT_LANG = 'en';
 const STORAGE_KEY = 'siteLang';
 
-// 10 языков. Названия в списке показываются на родном языке
+// Языки сайта (порядок = порядок флагов). Остальные языки убраны: сохранённый
+// ранее язык, которого нет в списке, заменяется английским
 export const LANG_NAMES = {
-  en: 'English',
   uk: 'Українська',
-  ru: 'Русский',
   pl: 'Polski',
-  de: 'Deutsch',
-  fr: 'Français',
-  es: 'Español',
-  it: 'Italiano',
-  pt: 'Português',
-  tr: 'Türkçe'
+  en: 'English'
 };
 
 // Тексты меню, вкладок и служебные надписи сайта

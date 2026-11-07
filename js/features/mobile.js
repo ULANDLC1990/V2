@@ -1,10 +1,8 @@
 /* Телефон: меню (свайп), флаги языков, прокрутка таблиц, классы для css/mobile.css.
    Вызывается из main.js сразу после initApp (нужен список языков .lang-select из app.js).
    Порог 700 пикселей такой же, как в app.js (там меню закрывается после выбора страницы). */
-import { getLang, onLangChange } from '../i18n.js';
 
 // Флаги языков в правом верхнем углу. Убрать язык: удалить строку. 'RU' показывается текстом, не флагом
-const FLAGS = [['uk', '🇺🇦'], ['pl', '🇵🇱'], ['en', '🇬🇧'], ['ru', 'RU']];
 
 export function init() {
   const app = document.getElementById('app');
@@ -96,39 +94,6 @@ export function init() {
       clearTimeout(zoomTimer);
       zoomTimer = setTimeout(() => { if (vv.scale < 0.99) resetZoom(); }, 300);
     });
-  }
-
-  /* ---------- Флаги языков ---------- */
-  // Переключают скрытый список языков из app.js, поэтому весь перевод работает как раньше
-  const langSelect = document.querySelector('.lang-select');
-  if (langSelect) {
-    const box = document.createElement('div');
-    box.id = 'langFlags';
-    FLAGS.forEach(([code, label]) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.dataset.lang = code;
-      b.setAttribute('aria-label', code);
-      b.textContent = label;
-      if (/^[A-Z]+$/.test(label)) b.className = 'txt';
-      b.addEventListener('click', () => {
-        langSelect.value = code;
-        langSelect.dispatchEvent(new Event('change', { bubbles: true }));
-        mark();
-      });
-      box.appendChild(b);
-    });
-    document.body.appendChild(box);
-
-    function mark() {
-      const cur = getLang();
-      Array.prototype.forEach.call(box.querySelectorAll('button'), (b) => {
-        b.classList.toggle('active', b.dataset.lang === cur);
-      });
-    }
-    mark();
-    // Язык мог смениться без нажатия на флаг (например, из другого места)
-    onLangChange(mark);
   }
 
   /* ---------- Таблицы: каждая прокручивается сама ---------- */

@@ -53,9 +53,8 @@ html.touch-phone, html.touch-phone body {
   overscroll-behavior-x: none;
   touch-action: pan-y pinch-zoom; /* приближать щипком можно, уменьшать страницу меньше экрана нельзя (см. mobile.js) */
 }
-/* Кнопка меню не нужна: есть свайп. Список языков заменён флагами */
+/* Кнопка меню не нужна: есть свайп */
 html.touch-phone #menuToggle { display: none !important; }
-html.touch-phone .lang-select { display: none !important; }
 
 /* Каждая таблица прокручивается сама (обёртку добавляет js/features/mobile.js) */
 html.touch-phone .tbl-scroll {
@@ -67,31 +66,16 @@ html.touch-phone .tbl-scroll {
 }
 
 /* ----- Флаги языков в правом верхнем углу ----- */
-#langFlags { display: none; }
 html.touch-phone #langFlags {
-  display: flex;
   position: fixed;
   top: calc(env(safe-area-inset-top, 0px) + 8px);
   right: calc(env(safe-area-inset-right, 0px) + 8px);
   z-index: 1100;
   gap: 6px;
 }
-#langFlags button {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(17, 24, 39, 0.85);
-  font-size: 22px;
-  line-height: 1;
-  opacity: 0.55;
-  cursor: pointer;
+html.touch-phone #langFlags button {
+  width: 44px;
+  height: 32px;
+  border-radius: 8px;
   -webkit-tap-highlight-color: transparent;
-}
-#langFlags button.txt { font-size: 13px; font-weight: 700; color: #fff; }
-#langFlags button.active {
-  opacity: 1;
-  border-color: #7c3aed;
-  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.55);
 }
