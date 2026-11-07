@@ -51,8 +51,8 @@ export function barcodeSvg(value, height, width, stretch) {
   return out;
 }
 
-// Стандартная этикетка 100x78 мм, по 2 копии на каждый SN. list: [{ sn, pn, brand }]
-export function stdPages(list, withBrand) {
+// Стандартная этикетка 100x78 мм, по умолчанию 2 копии на каждый SN (copies). list: [{ sn, pn, brand }]
+export function stdPages(list, withBrand, copies = 2) {
   let out = '';
   list.forEach((p) => {
     const pn = p.pn || 'N/A', sn = p.sn || 'N/A', brand = p.brand || '-';
@@ -69,13 +69,13 @@ export function stdPages(list, withBrand) {
           <div class="val-sn">${esc(sn)}</div>
         </div>
       </div></div>`;
-    out += one + one;
+    out += one.repeat(copies);
   });
   return out;
 }
 
-// Новая этикетка 130x76 мм, по 2 копии на каждый SN
-export function newPages(list, withBrand) {
+// Новая этикетка 130x76 мм, по умолчанию 2 копии на каждый SN (copies)
+export function newPages(list, withBrand, copies = 2) {
   let out = '';
   list.forEach((p) => {
     const pn = p.pn || 'N/A', sn = p.sn || 'N/A', brand = p.brand || '-';
@@ -88,7 +88,7 @@ export function newPages(list, withBrand) {
         <div class="bw-sn">${barcodeSvg(sn, 48, 1.0, true)}</div>
         <div class="val">${esc(sn)}</div>
       </div></div>`;
-    out += one + one;
+    out += one.repeat(copies);
   });
   return out;
 }
@@ -127,7 +127,8 @@ export function printDoc(pages, w, h, opts) {
 }
 
 // Печать списка в нужном формате: mode '2' = 130×76, иначе 100×78
-export function printList(list, withBrand, mode, opts) {
-  if (mode === '2') printDoc(newPages(list, withBrand), 130, 76, opts);
-  else printDoc(stdPages(list, withBrand), 100, 78, opts);
+// copies: сколько копий каждой этикетки (по умолчанию 2)
+export function printList(list, withBrand, mode, opts, copies = 2) {
+  if (mode === '2') printDoc(newPages(list, withBrand, copies), 130, 76, opts);
+  else printDoc(stdPages(list, withBrand, copies), 100, 78, opts);
 }

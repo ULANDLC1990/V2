@@ -5,9 +5,11 @@
 
    Горячие клавиши (работают на любой странице сайта):
      Открыта страница Final I: печатает Final I. Иначе (Final II, Repair Log, любая другая страница): печатает Final II.
-     Shift+P — печать без бренда (первая строка или выделенные). В полях ввода не срабатывает.
+     Shift+P — 2 этикетки без бренда (первая строка или выделенные). В полях ввода не срабатывает.
      Ctrl+P  — то же; стандартное окно печати браузера не открывается.
-     Alt+P   — печать с брендом в выбранном формате.
+     Alt+P   — 2 этикетки с брендом в выбранном формате.
+     Shift+O / Ctrl+O — 1 этикетка без бренда (Shift+O в полях ввода не срабатывает).
+     Alt+O   — 1 этикетка с брендом.
      Ctrl+C  — копирование выделенной колонки (только на открытой странице Final I или Final II).
    Двойной клик по серийному номеру — копирование в буфер обмена (без уведомления).
    Данные обновляются в фоне каждые 5 секунд, независимо от того, открыта ли страница.
@@ -331,14 +333,14 @@ ${PAGE} .f-spin{display:inline-block;width:12px;height:12px;border:2px solid #37
   function printNew(list, inc) { printList(list, inc, '2', PRINT_OPTS); }
 
   // Пакетная печать и Shift+P: формат зависит от выбранной кнопки 100×78 / 130×76
-  function printCurrent(list, inc) {
-    printList(list, inc, mode, PRINT_OPTS);
+  function printCurrent(list, inc, copies = 2) {
+    printList(list, inc, mode, PRINT_OPTS, copies);
   }
 
-  function printBatch(inc) {
+  function printBatch(inc, copies = 2) {
     const list = products.filter(p => selected.has(p.sn));
     if (!list.length) return;
-    printCurrent(list, inc);
+    printCurrent(list, inc, copies);
     selected.clear();
     render();
   }
@@ -362,11 +364,11 @@ ${PAGE} .f-spin{display:inline-block;width:12px;height:12px;border:2px solid #37
   };
 
   // Горячие клавиши принимает общий обработчик внизу файла: он решает, какая станция сейчас активна.
-  function hotPrint(withBrand) {
+  function hotPrint(withBrand, copies = 2) {
     if (!products.length) return;
     if (!selected.size && !products[0].pn) { toast(t('toastPn')); return; }
-    if (selected.size) printBatch(withBrand);
-    else printCurrent([products[0]], withBrand);
+    if (selected.size) printBatch(withBrand, copies);
+    else printCurrent([products[0]], withBrand, copies);
   }
 
   // Ctrl+C: копирование выделенной колонки
@@ -551,6 +553,20 @@ function ensureHotkeys() {
       if (e.repeat) return;
       target.hotPrint(false);
       return;
+    }
+
+    // O: то же, но одна этикетка вместо двух
+    const isO = e.code === 'KeyO' || (e.key && e.key.toLowerCase() === 'o');
+    if (isO) {
+      const plain = (e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && !isTyping(e.target)) ||
+                    ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey);
+      const brand = e.altKey && !e.ctrlKey && !e.metaKey;
+      if (plain || brand) {
+        e.preventDefault();   // Ctrl+O иначе открывает окно выбора файла
+        if (e.repeat) return;
+        target.hotPrint(brand, 1);
+        return;
+      }
     }
 
     // Ctrl+C: копирование выделенной колонки, только на открытой странице Final I или Final II
