@@ -228,9 +228,12 @@ const LAYOUT_CSS = `
   font-size: 0.9rem;
 }
 
-@media (max-width: 900px) {
+/* Раскладка зависит от ширины самого блока, а не окна: в узком окне форма и кнопки статусов
+   не помещаются в один ряд, поэтому кнопки уходят под форму */
+#secretPage .rl-wrap { container-type: inline-size; }
+@container (max-width: 66rem) {
   #secretPage .rl-top { grid-template-columns: minmax(0, 1fr); }
-  #secretPage .rl-codes { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  #secretPage .rl-codes { grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr)); }
   #secretPage .rl-codes .rl-code { width: 100%; }
   #secretPage .rl-top .rl-form { flex-wrap: wrap; }
   #secretPage .rl-top .rl-form input { flex: 1 1 10rem; }
