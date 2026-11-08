@@ -69,12 +69,60 @@ const STYLE = `
 #photoPage .ph-done { color: #4ade80; font-size: 18px; font-weight: 700; text-align: center; }
 #photoPage .ph-empty { color: #6B7280; font-size: 13px; padding: 10px 2px; }
 @media (max-width: 800px) { #photoPage .ph-stage { grid-template-columns: 1fr; } }
+
+/* ----- Телефон: вкладка открывается как фотоаппарат ----- */
+#photoPage .ph-thumb, #photoPage .ph-close, #photoPage .ph-flash { display: none; }
+html.touch-phone #photoPage { position: fixed; inset: 0; z-index: 800; margin: 0; padding: 0; background: #000; }
+html.touch-phone #photoPage .ph-wrap { position: absolute; inset: 0; max-width: none; margin: 0; padding: 0; border: 0;
+  border-radius: 0; background: #000; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; overflow: hidden; }
+html.touch-phone #photoPage h2 { display: none; }
+html.touch-phone #photoPage #ph-top { display: contents; }
+html.touch-phone #photoPage .ph-stage { position: absolute; inset: 0; display: block; gap: 0; }
+html.touch-phone #photoPage .ph-box { position: absolute; inset: 0; border: 0; border-radius: 0; min-height: 0; background: #000; }
+html.touch-phone #photoPage video { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: contain; }
+html.touch-phone #photoPage .ph-auto { position: absolute; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 12px; right: 12px;
+  margin: 0; padding: 8px 12px; border-radius: 12px; background: rgba(0,0,0,.6); color: #fff; font-size: 13px; text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.touch-phone #photoPage .ph-auto:empty { display: none; }
+html.touch-phone #photoPage #ph-cam { position: absolute; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 54px); left: 12px;
+  max-width: calc(100% - 24px); min-width: 0; background: rgba(0,0,0,.6); border-color: rgba(255,255,255,.25); }
+html.touch-phone #photoPage .ph-msg { position: absolute; z-index: 3; left: 12px; right: 12px; margin: 0; text-align: center;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 128px); padding: 8px 12px; border-radius: 12px; background: rgba(0,0,0,.65); color: #fff; font-size: 14px; }
+html.touch-phone #photoPage .ph-msg:empty { display: none; }
+/* Кнопка съёмки: большой белый круг внизу по центру, как в камере iPhone */
+html.touch-phone #photoPage #ph-snap { position: absolute; z-index: 4; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
+  transform: translateX(-50%); width: 78px; height: 78px; padding: 0; border-radius: 50%; font-size: 0; background: #fff;
+  border: 5px solid #000; box-shadow: 0 0 0 4px #fff; }
+html.touch-phone #photoPage #ph-snap:active:not(:disabled) { transform: translateX(-50%) scale(.9); }
+html.touch-phone #photoPage #ph-snap:disabled { opacity: .35; }
+/* Телефон повёрнут горизонтально: кнопка съёмки в правом нижнем углу, под большой палец */
+@media (orientation: landscape) {
+  html.touch-phone #photoPage #ph-snap { left: auto; right: calc(env(safe-area-inset-right, 0px) + 28px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); transform: none; }
+  html.touch-phone #photoPage #ph-snap:active:not(:disabled) { transform: scale(.9); }
+}
+html.touch-phone #photoPage .ph-thumb { display: flex; position: absolute; z-index: 4; width: 58px; height: 58px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); padding: 0; border-radius: 14px; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); color: #fff; font-size: 26px; cursor: pointer; }
+html.touch-phone #photoPage .ph-thumb { left: 24px; }
+html.touch-phone #photoPage .ph-count { position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px;
+  background: #7c3aed; color: #fff; font-size: 12px; line-height: 20px; text-align: center; }
+html.touch-phone #photoPage .ph-count:empty { display: none; }
+html.touch-phone #photoPage .ph-flash { display: block; position: absolute; inset: 0; z-index: 6; background: #fff; opacity: 0; pointer-events: none; transition: opacity .25s; }
+html.touch-phone #photoPage .ph-flash.on { opacity: .85; transition: none; }
+/* Список фото открывается поверх камеры по кнопке слева внизу */
+html.touch-phone #photoPage .ph-listbox { display: none; position: absolute; inset: 0; z-index: 7; background: #0b0f1a; overflow: auto;
+  -webkit-overflow-scrolling: touch; padding: calc(env(safe-area-inset-top, 0px) + 60px) 12px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+html.touch-phone #photoPage .ph-wrap.ph-open .ph-listbox { display: block; }
+html.touch-phone #photoPage .ph-wrap.ph-open .ph-close { display: block; position: absolute; z-index: 8; top: calc(env(safe-area-inset-top, 0px) + 10px);
+  right: 12px; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 12px; background: #374151; color: #fff; font-size: 20px; cursor: pointer; }
+html.touch-phone.ph-camera #langFlags { display: none !important; }
 `;
 
 const MARKUP = `
-<div class="ph-wrap">
+<div class="ph-wrap" id="ph-wrap">
   <h2>Photo</h2>
-  <div class="ph-bar">
+  <div class="ph-bar" id="ph-top">
     <select id="ph-cam"></select>
     <button type="button" class="ph-btn" id="ph-snap" disabled>📷 Сделать фото и сохранить</button>
   </div>
@@ -83,14 +131,19 @@ const MARKUP = `
     <div class="ph-box"><video id="ph-video" autoplay playsinline muted></video></div>
   </div>
   <div class="ph-msg" id="ph-msg"></div>
-  <div class="ph-bar" style="justify-content:space-between">
-    <strong style="color:#c4b5fd">Фото (хранятся, пока не удалишь)</strong>
-    <div class="ph-bar" style="margin:0">
-      <button type="button" class="ph-btn ghost" id="ph-refresh">Обновить список</button>
-      <button type="button" class="ph-btn danger" id="ph-delall">Удалить все</button>
+  <button type="button" class="ph-thumb" id="ph-thumb" aria-label="Фото">🖼<span class="ph-count" id="ph-count"></span></button>
+  <div class="ph-flash" id="ph-flash"></div>
+  <button type="button" class="ph-close" id="ph-close" aria-label="Закрыть">✕</button>
+  <div class="ph-listbox" id="ph-listbox">
+    <div class="ph-bar" style="justify-content:space-between">
+      <strong style="color:#c4b5fd">Фото (хранятся, пока не удалишь)</strong>
+      <div class="ph-bar" style="margin:0">
+        <button type="button" class="ph-btn ghost" id="ph-refresh">Обновить список</button>
+        <button type="button" class="ph-btn danger" id="ph-delall">Удалить все</button>
+      </div>
     </div>
+    <div id="ph-list"></div>
   </div>
-  <div id="ph-list"></div>
 </div>`;
 
 const $ = (id) => document.getElementById(id);
@@ -106,7 +159,12 @@ let autoInfo = '';     // дата и время этой записи
 let autoState = 'wait'; // wait | ok | none | err
 const RL_QUEUE_KEY = 'rl_queue_v1'; // записи Repair Log, ещё не отправленные в базу (нет связи)
 
-function msg(text) { $('ph-msg').textContent = text || ''; }
+let msgTimer = null;
+function msg(text) {
+  $('ph-msg').textContent = text || '';
+  clearTimeout(msgTimer);
+  if (text) msgTimer = setTimeout(() => { $('ph-msg').textContent = ''; }, 8000);
+}
 
 // Отдельный клиент для вкладки Photo (без сессии), чтобы не конфликтовать с другими клиентами сайта
 function sb() {
@@ -144,7 +202,7 @@ function showAuto() {
   const el = $('ph-auto');
   if (!el) return;
   let text = '', warn = false;
-  if (autoState === 'ok') text = 'Серийный номер из Repair Log: ' + autoSn + (autoInfo ? ' (' + autoInfo + ')' : '');
+  if (autoState === 'ok') text = 'SN из Repair Log: ' + autoSn + (autoInfo ? ' · ' + autoInfo : '');
   else if (autoState === 'none') { text = 'В Repair Log ещё нет записей: фото сохранить нельзя.'; warn = true; }
   else if (autoState === 'err') { text = 'Не удалось получить номер из Repair Log.'; warn = true; }
   el.textContent = text;
@@ -294,6 +352,13 @@ async function startCamera() {
 
 /* ---------- Снимок и сохранение ---------- */
 
+// Короткая белая вспышка и вибрация (где поддерживается): видно, что снимок сделан
+function flash() {
+  const f = $('ph-flash');
+  if (f) { f.classList.add('on'); setTimeout(() => f.classList.remove('on'), 120); }
+  try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {}
+}
+
 async function takeShot() {
   const video = $('ph-video');
   if (!stream || !video.videoWidth) { msg('Камера ещё не готова'); return; }
@@ -305,6 +370,7 @@ async function takeShot() {
   canvas.getContext('2d').drawImage(video, 0, 0);
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
   if (!blob) { msg('Не удалось создать снимок'); return; }
+  flash();
 
   // Серийный номер: самый свежий из Repair Log
   await refreshAuto();
@@ -361,6 +427,7 @@ async function refreshList() {
     .map(f => ({ f, p: parseName(f.name) }))
     .filter(x => x.p);
   listed = items.map(x => x.f.name);
+  if ($('ph-count')) $('ph-count').textContent = listed.length ? String(listed.length) : '';
   const idx = await sheetIndex(false);
 
   // Отметки «скачано» (таблица photo_downloads). Если таблицы нет, отметок просто не будет
@@ -466,6 +533,8 @@ export function init() {
   $('ph-snap').addEventListener('click', takeShot);
   $('ph-cam').addEventListener('change', () => { userCam = true; startCamera(); });
   $('ph-refresh').addEventListener('click', refreshList);
+  $('ph-thumb').addEventListener('click', () => { $('ph-wrap').classList.add('ph-open'); refreshList(); });
+  $('ph-close').addEventListener('click', () => $('ph-wrap').classList.remove('ph-open'));
   $('ph-delall').addEventListener('click', deleteAll);
   $('ph-list').addEventListener('click', (e) => {
     const dl = e.target.closest('button[data-dl]');
@@ -485,6 +554,8 @@ export function init() {
 // Страницу открыли
 export function show() {
   if (!inited) return;
+  document.documentElement.classList.add('ph-camera');
+  $('ph-wrap').classList.remove('ph-open');
   autoCamTried = false;
   startCamera();
   refreshList();
@@ -493,5 +564,6 @@ export function show() {
 
 // Со страницы ушли: камера выключается
 export function hide() {
+  document.documentElement.classList.remove('ph-camera');
   stopStream();
 }
