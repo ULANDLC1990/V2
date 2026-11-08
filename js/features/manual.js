@@ -16,18 +16,11 @@ const PAGES = [
 
 const COLLAPSE_KEY = 'manualCollapse:';
 
-/* ===== Переклади (10 мов сайту) ===== */
+/* ===== Переклади (uk / pl / en) ===== */
 const I18N = {
   en: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Print", printBrand: "🖨️ With Brand", alertFill: "Please fill in at least Serial Number or Part Number!", alertNoData: "No data found to print!" },
   uk: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Друк", printBrand: "🖨️ З Brand", alertFill: "Будь ласка, заповніть хоча б Serial Number або Part Number!", alertNoData: "Не знайдено даних для друку!" },
-  ru: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Печать", printBrand: "🖨️ С Brand", alertFill: "Пожалуйста, заполните хотя бы Serial Number или Part Number!", alertNoData: "Не найдено данных для печати!" },
-  pl: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Drukuj", printBrand: "🖨️ Z Brand", alertFill: "Wypełnij co najmniej Serial Number lub Part Number!", alertNoData: "Nie znaleziono danych do druku!" },
-  de: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Drucken", printBrand: "🖨️ Mit Brand", alertFill: "Bitte mindestens Serial Number oder Part Number ausfüllen!", alertNoData: "Keine Daten zum Drucken gefunden!" },
-  fr: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Imprimer", printBrand: "🖨️ Avec Brand", alertFill: "Veuillez remplir au moins Serial Number ou Part Number !", alertNoData: "Aucune donnée à imprimer !" },
-  es: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Imprimir", printBrand: "🖨️ Con Brand", alertFill: "¡Complete al menos Serial Number o Part Number!", alertNoData: "¡No se encontraron datos para imprimir!" },
-  it: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Stampa", printBrand: "🖨️ Con Brand", alertFill: "Compila almeno Serial Number o Part Number!", alertNoData: "Nessun dato da stampare!" },
-  pt: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Imprimir", printBrand: "🖨️ Com Brand", alertFill: "Preencha pelo menos Serial Number ou Part Number!", alertNoData: "Nenhum dado encontrado para imprimir!" },
-  tr: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Yazdır", printBrand: "🖨️ Brand ile", alertFill: "En az Serial Number veya Part Number doldurun!", alertNoData: "Yazdırılacak veri bulunamadı!" }
+  pl: { sn: "Serial Number (SN)", pn: "Part Number (PN)", brand: "Brand", print: "🖨️ Drukuj", printBrand: "🖨️ Z Brand", alertFill: "Wypełnij co najmniej Serial Number lub Part Number!", alertNoData: "Nie znaleziono danych do druku!" }
 };
 const t = createTranslator(I18N);
 

@@ -23,15 +23,8 @@ const SCC_MAX_PT = 60, SCC_MIN_PT = 8, SCC_LINE_HEIGHT = 1.1;
 
 const TR = {
   uk: { print: "🖨️ Друк", printScc: "🖨️ Друк SCC", printIcon: "🖨️ Друк ICON" },
-  ru: { print: "🖨️ Печать", printScc: "🖨️ Печать SCC", printIcon: "🖨️ Печать ICON" },
   pl: { print: "🖨️ Drukuj", printScc: "🖨️ Drukuj SCC", printIcon: "🖨️ Drukuj ICON" },
-  en: { print: "🖨️ Print", printScc: "🖨️ Print SCC", printIcon: "🖨️ Print ICON" },
-  de: { print: "🖨️ Drucken", printScc: "🖨️ SCC drucken", printIcon: "🖨️ ICON drucken" },
-  fr: { print: "🖨️ Imprimer", printScc: "🖨️ Imprimer SCC", printIcon: "🖨️ Imprimer ICON" },
-  es: { print: "🖨️ Imprimir", printScc: "🖨️ Imprimir SCC", printIcon: "🖨️ Imprimir ICON" },
-  it: { print: "🖨️ Stampa", printScc: "🖨️ Stampa SCC", printIcon: "🖨️ Stampa ICON" },
-  pt: { print: "🖨️ Imprimir", printScc: "🖨️ Imprimir SCC", printIcon: "🖨️ Imprimir ICON" },
-  tr: { print: "🖨️ Yazdır", printScc: "🖨️ SCC yazdır", printIcon: "🖨️ ICON yazdır" }
+  en: { print: "🖨️ Print", printScc: "🖨️ Print SCC", printIcon: "🖨️ Print ICON" }
 };
 const t = createTranslator(TR);
 

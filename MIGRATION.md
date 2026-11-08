@@ -45,7 +45,7 @@ js/
    const t = createTranslator(DICT);          // DICT = { en: {...}, uk: {...}, ... } — словарь остаётся в модуле
    onLangChange(() => { applyText(); render(); });   // подписка внутри init()
    ```
-   Начальный язык берётся из `getLang()`. Если у модуля меньше языков, чем 10, английский подставится сам
+   Начальный язык берётся из `getLang()`. Если у модуля нет какого-то из языков, английский подставится сам
    (`createTranslator` / `pick`). Если модуль поддерживает только часть языков и логика зависит от кода языка — `resolveLang(['uk','pl','en'])`.
 5. **Supabase:** `import { sb } from '../core/supabase.js'` вместо `window.__lcdrSb` и своих `createClient`.
    Исключение — Photo (`createIsolatedClient`, отдельный клиент без сессии).

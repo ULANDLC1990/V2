@@ -4,10 +4,58 @@
    Фото хранится, пока его не удалят кнопкой «Удалить» (или «Удалить все»).
    Контейнер: <section id="photoPage">. Работает по HTTPS или на localhost.
    Для удаления в Supabase нужна политика на storage.objects (см. инструкцию).
-   Тексты вкладки только на русском (как и раньше). Камера запускается в show() и гасится в hide(). */
+   Тексты вкладки: uk / pl / en (словарь DICT). Камера запускается в show() и гасится в hide(). */
 import { createIsolatedClient } from '../core/supabase.js';
 import { rows as sheetRows } from '../core/sheets.js';
 import { esc } from '../core/util.js';
+import { createTranslator, onLangChange } from '../i18n.js';
+
+// Тексты страницы (uk / pl / en)
+const DICT = {
+  uk: {
+    title: 'Фото', snap: '📷 Зробити фото і зберегти', listTitle: 'Фото (зберігаються, поки не видалиш)',
+    refresh: 'Оновити список', delAll: 'Видалити всі', colWorker: 'Працівник', colFile: 'Файл', colShot: 'Знято', colDl: 'Завантажено',
+    dl: '⬇ Завантажити', del: '🗑 Видалити', empty: 'Зараз немає фото', dlTitle: 'Завантажено: {d}', camN: 'Камера {n}',
+    ariaPhotos: 'Фото', ariaClose: 'Закрити',
+    autoOk: 'SN з Repair Log: ', autoNone: 'У Repair Log ще немає записів: фото зберегти не можна.', autoErr: 'Не вдалося отримати номер із Repair Log.',
+    noCamSupport: 'Браузер не підтримує камеру. Потрібен HTTPS або localhost.', connecting: 'Підключення камери...',
+    camUnavail: 'Камера недоступна: {e}', notReady: 'Камера ще не готова', noBlob: 'Не вдалося створити знімок',
+    noSn: 'Немає серійного номера: спочатку додайте запис у Repair Log', saving: 'Зберігаю {f}...',
+    saved: 'Збережено: {f} ({n})', noName: 'прізвища в таблиці поки не знайдено', saveErr: 'Помилка збереження: {e}',
+    listErr: 'Помилка списку: {e}', loading: 'Завантаження {f}...', notFound: 'Фото {f} не знайдено', downloaded: 'Завантажено: {f}',
+    noPolicy: 'файл не видалено: перевір політику видалення в Supabase', deleted: 'Видалено: {f}', delErr: 'Помилка видалення: {e}',
+    confirmAll: 'Видалити всі фото ({n} шт.)? Це неможливо скасувати.', deletedN: 'Видалено фото: {n}', zoomErr: 'Зум недоступний: {e}'
+  },
+  pl: {
+    title: 'Zdjęcia', snap: '📷 Zrób zdjęcie i zapisz', listTitle: 'Zdjęcia (przechowywane, dopóki ich nie usuniesz)',
+    refresh: 'Odśwież listę', delAll: 'Usuń wszystkie', colWorker: 'Pracownik', colFile: 'Plik', colShot: 'Zrobiono', colDl: 'Pobrano',
+    dl: '⬇ Pobierz', del: '🗑 Usuń', empty: 'Brak zdjęć', dlTitle: 'Pobrano: {d}', camN: 'Kamera {n}',
+    ariaPhotos: 'Zdjęcia', ariaClose: 'Zamknij',
+    autoOk: 'SN z Repair Log: ', autoNone: 'W Repair Log nie ma jeszcze wpisów: nie można zapisać zdjęcia.', autoErr: 'Nie udało się pobrać numeru z Repair Log.',
+    noCamSupport: 'Przeglądarka nie obsługuje kamery. Wymagane HTTPS lub localhost.', connecting: 'Łączenie z kamerą...',
+    camUnavail: 'Kamera niedostępna: {e}', notReady: 'Kamera nie jest jeszcze gotowa', noBlob: 'Nie udało się utworzyć zdjęcia',
+    noSn: 'Brak numeru seryjnego: najpierw dodaj wpis w Repair Log', saving: 'Zapisuję {f}...',
+    saved: 'Zapisano: {f} ({n})', noName: 'nazwiska w tabeli jeszcze nie znaleziono', saveErr: 'Błąd zapisu: {e}',
+    listErr: 'Błąd listy: {e}', loading: 'Pobieranie {f}...', notFound: 'Nie znaleziono zdjęcia {f}', downloaded: 'Pobrano: {f}',
+    noPolicy: 'plik nie został usunięty: sprawdź politykę usuwania w Supabase', deleted: 'Usunięto: {f}', delErr: 'Błąd usuwania: {e}',
+    confirmAll: 'Usunąć wszystkie zdjęcia ({n} szt.)? Tego nie można cofnąć.', deletedN: 'Usunięto zdjęć: {n}', zoomErr: 'Zoom niedostępny: {e}'
+  },
+  en: {
+    title: 'Photo', snap: '📷 Take photo and save', listTitle: 'Photos (kept until you delete them)',
+    refresh: 'Refresh list', delAll: 'Delete all', colWorker: 'Worker', colFile: 'File', colShot: 'Taken', colDl: 'Downloaded',
+    dl: '⬇ Download', del: '🗑 Delete', empty: 'No photos right now', dlTitle: 'Downloaded: {d}', camN: 'Camera {n}',
+    ariaPhotos: 'Photos', ariaClose: 'Close',
+    autoOk: 'SN from Repair Log: ', autoNone: 'No Repair Log entries yet: the photo cannot be saved.', autoErr: 'Could not get the number from Repair Log.',
+    noCamSupport: 'This browser does not support the camera. HTTPS or localhost is required.', connecting: 'Connecting to the camera...',
+    camUnavail: 'Camera unavailable: {e}', notReady: 'The camera is not ready yet', noBlob: 'Could not create the picture',
+    noSn: 'No serial number: add an entry in Repair Log first', saving: 'Saving {f}...',
+    saved: 'Saved: {f} ({n})', noName: 'name not found in the table yet', saveErr: 'Save error: {e}',
+    listErr: 'List error: {e}', loading: 'Downloading {f}...', notFound: 'Photo {f} not found', downloaded: 'Downloaded: {f}',
+    noPolicy: 'file was not deleted: check the delete policy in Supabase', deleted: 'Deleted: {f}', delErr: 'Delete error: {e}',
+    confirmAll: 'Delete all photos ({n})? This cannot be undone.', deletedN: 'Photos deleted: {n}', zoomErr: 'Zoom unavailable: {e}'
+  }
+};
+const t = createTranslator(DICT);
 
 const PAGE_ID = 'photoPage';
 const BUCKET = 'photos';
@@ -135,10 +183,10 @@ html.touch-phone #photoPage .ph-zoom button.on { background: rgba(0,0,0,.55); co
 
 const MARKUP = `
 <div class="ph-wrap" id="ph-wrap">
-  <h2>Photo</h2>
+  <h2 data-i18n="title">Photo</h2>
   <div class="ph-bar" id="ph-top">
     <select id="ph-cam"></select>
-    <button type="button" class="ph-btn" id="ph-snap" disabled>📷 Сделать фото и сохранить</button>
+    <button type="button" class="ph-btn" id="ph-snap" data-i18n="snap" disabled>📷</button>
   </div>
   <div class="ph-auto" id="ph-auto"></div>
   <div class="ph-stage" style="grid-template-columns:1fr">
@@ -146,15 +194,15 @@ const MARKUP = `
   </div>
   <div class="ph-msg" id="ph-msg"></div>
   <div class="ph-zoom" id="ph-zoom"><button type="button" data-z="0.5">0,5</button><button type="button" data-z="1" class="on">1</button></div>
-  <button type="button" class="ph-thumb" id="ph-thumb" aria-label="Фото">🖼<span class="ph-count" id="ph-count"></span></button>
+  <button type="button" class="ph-thumb" id="ph-thumb" data-i18n-aria="ariaPhotos" aria-label="Photo">🖼<span class="ph-count" id="ph-count"></span></button>
   <div class="ph-flash" id="ph-flash"></div>
-  <button type="button" class="ph-close" id="ph-close" aria-label="Закрыть">✕</button>
+  <button type="button" class="ph-close" id="ph-close" data-i18n-aria="ariaClose" aria-label="Close">✕</button>
   <div class="ph-listbox" id="ph-listbox">
     <div class="ph-bar" style="justify-content:space-between">
-      <strong style="color:#c4b5fd">Фото (хранятся, пока не удалишь)</strong>
+      <strong style="color:#c4b5fd" data-i18n="listTitle"></strong>
       <div class="ph-bar" style="margin:0">
-        <button type="button" class="ph-btn ghost" id="ph-refresh">Обновить список</button>
-        <button type="button" class="ph-btn danger" id="ph-delall">Удалить все</button>
+        <button type="button" class="ph-btn ghost" id="ph-refresh" data-i18n="refresh"></button>
+        <button type="button" class="ph-btn danger" id="ph-delall" data-i18n="delAll"></button>
       </div>
     </div>
     <div id="ph-list"></div>
@@ -217,9 +265,9 @@ function showAuto() {
   const el = $('ph-auto');
   if (!el) return;
   let text = '', warn = false;
-  if (autoState === 'ok') text = 'SN из Repair Log: ' + autoSn + (autoInfo ? ' · ' + autoInfo : '');
-  else if (autoState === 'none') { text = 'В Repair Log ещё нет записей: фото сохранить нельзя.'; warn = true; }
-  else if (autoState === 'err') { text = 'Не удалось получить номер из Repair Log.'; warn = true; }
+  if (autoState === 'ok') text = t('autoOk') + autoSn + (autoInfo ? ' · ' + autoInfo : '');
+  else if (autoState === 'none') { text = t('autoNone'); warn = true; }
+  else if (autoState === 'err') { text = t('autoErr'); warn = true; }
   el.textContent = text;
   el.className = 'ph-auto' + (warn ? ' warn' : '');
 }
@@ -372,7 +420,7 @@ async function onZoomClick(value) {
     try {
       await track.applyConstraints({ advanced: [{ zoom: value }] });
       markZoom(value);
-    } catch (e) { msg('Зум недоступен: ' + e.message); }
+    } catch (e) { msg(t('zoomErr', { e: e.message })); }
   }
 }
 
@@ -384,7 +432,7 @@ async function fillCameraList() {
   devices.forEach((d, i) => {
     const opt = document.createElement('option');
     opt.value = d.deviceId;
-    opt.textContent = d.label || `Камера ${i + 1}`;
+    opt.textContent = d.label || t('camN', { n: i + 1 });
     sel.appendChild(opt);
   });
   if (current && devices.some(d => d.deviceId === current)) sel.value = current;
@@ -392,11 +440,11 @@ async function fillCameraList() {
 
 async function startCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    msg('Браузер не поддерживает камеру. Нужен HTTPS или localhost.');
+    msg(t('noCamSupport'));
     return;
   }
   stopStream();
-  msg('Подключение камеры...');
+  msg(t('connecting'));
   const deviceId = $('ph-cam').value;
   // На телефоне без выбранной камеры сразу открываем заднюю (потом подбирается двойная широкоугольная)
   const video = deviceId
@@ -426,7 +474,7 @@ async function startCamera() {
     }
     await setupZoom();
   } catch (err) {
-    msg('Камера недоступна: ' + err.name + ' — ' + err.message);
+    msg(t('camUnavail', { e: err.name + ' — ' + err.message }));
   }
 }
 
@@ -454,7 +502,7 @@ function setThumb(src) {
 
 async function takeShot() {
   const video = $('ph-video');
-  if (!stream || !video.videoWidth) { msg('Камера ещё не готова'); return; }
+  if (!stream || !video.videoWidth) { msg(t('notReady')); return; }
 
   // Кадр снимаем сразу при нажатии
   const canvas = document.createElement('canvas');
@@ -462,7 +510,7 @@ async function takeShot() {
   canvas.height = video.videoHeight;
   canvas.getContext('2d').drawImage(video, 0, 0);
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
-  if (!blob) { msg('Не удалось создать снимок'); return; }
+  if (!blob) { msg(t('noBlob')); return; }
   flash();
   setThumb(canvas);
 
@@ -470,7 +518,7 @@ async function takeShot() {
   await refreshAuto();
   const serial = autoSn;
   if (serial.length < 3) {
-    msg('Нет серийного номера: сначала добавьте запись в Repair Log');
+    msg(t('noSn'));
     return;
   }
 
@@ -478,7 +526,7 @@ async function takeShot() {
   const name = await workerFor(serial);
   const key = workerKey(name) || NO_NAME;
   const objectName = `${key}__${serial}.jpg`;
-  msg(`Сохраняю ${serial}.jpg...`);
+  msg(t('saving', { f: serial + '.jpg' }));
   $('ph-snap').disabled = true;
 
   try {
@@ -491,11 +539,11 @@ async function takeShot() {
     // Повторный снимок этого номера: убираем прежний файл, если он был записан под другой фамилией
     const stale = listed.filter(n => n !== objectName && n.endsWith('__' + serial + '.jpg'));
     if (stale.length) { try { await removeFiles(stale); } catch (e) {} }
-    msg(`Сохранено: ${serial}.jpg (${name || 'фамилия в таблице пока не найдена'})`);
+    msg(t('saved', { f: serial + '.jpg', n: name || t('noName') }));
     refreshAuto();
     refreshList();
   } catch (err) {
-    msg('Ошибка сохранения: ' + (err.message || err));
+    msg(t('saveErr', { e: err.message || err }));
   } finally {
     $('ph-snap').disabled = !stream;
   }
@@ -515,7 +563,7 @@ async function refreshList() {
     limit: 1000,
     sortBy: { column: 'updated_at', order: 'desc' }
   });
-  if (error) { msg('Ошибка списка: ' + error.message); return; }
+  if (error) { msg(t('listErr', { e: error.message })); return; }
 
   const items = (data || [])
     .map(f => ({ f, p: parseName(f.name) }))
@@ -539,25 +587,25 @@ async function refreshList() {
     // Галочка, если фото скачали уже после того, как оно было снято (повторный снимок сбрасывает отметку)
     const d = downloaded[x.f.name];
     const done = d && x.f.updated_at && new Date(d) > new Date(x.f.updated_at);
-    const mark = done ? `<span title="Скачано: ${esc(new Date(d).toLocaleString())}">✔</span>` : '';
+    const mark = done ? `<span title="${esc(t('dlTitle', { d: new Date(d).toLocaleString() }))}">✔</span>` : '';
     return `<tr>
       <td>${esc(idx.get(x.p.serial.toUpperCase()) || x.p.worker)}</td>
       <td>${esc(x.p.serial)}.jpg</td>
       <td>${esc(x.f.updated_at ? new Date(x.f.updated_at).toLocaleString() : '')}</td>
       <td class="ph-done">${mark}</td>
       <td class="acts">
-        <button type="button" class="ph-btn ghost" data-dl="${esc(x.f.name)}">⬇ Скачать</button>
-        <button type="button" class="ph-btn danger" data-del="${esc(x.f.name)}">🗑 Удалить</button>
+        <button type="button" class="ph-btn ghost" data-dl="${esc(x.f.name)}">${esc(t('dl'))}</button>
+        <button type="button" class="ph-btn danger" data-del="${esc(x.f.name)}">${esc(t('del'))}</button>
       </td>
     </tr>`;
   }).join('');
 
   $('ph-list').innerHTML = rows
     ? `<table class="ph-table">
-        <thead><tr><th>Работник</th><th>Файл</th><th>Снято</th><th style="text-align:center">Скачано</th><th></th></tr></thead>
+        <thead><tr><th>${esc(t('colWorker'))}</th><th>${esc(t('colFile'))}</th><th>${esc(t('colShot'))}</th><th style="text-align:center">${esc(t('colDl'))}</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>`
-    : '<div class="ph-empty">Сейчас нет фото</div>';
+    : `<div class="ph-empty">${esc(t('empty'))}</div>`;
   $('ph-delall').disabled = !listed.length;
 }
 
@@ -565,10 +613,10 @@ async function downloadFile(name) {
   const p = parseName(name);
   if (!p) return;
   const fileName = p.serial + '.jpg';
-  msg(`Загрузка ${fileName}...`);
+  msg(t('loading', { f: fileName }));
 
   const { data, error } = await sb().storage.from(BUCKET).download(name);
-  if (error || !data) { msg(`Фото ${fileName} не найдено`); refreshList(); return; }
+  if (error || !data) { msg(t('notFound', { f: fileName })); refreshList(); return; }
   const url = URL.createObjectURL(data);
   const a = document.createElement('a');
   a.href = url;
@@ -577,7 +625,7 @@ async function downloadFile(name) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
-  msg(`Скачано: ${fileName}`);
+  msg(t('downloaded', { f: fileName }));
   try { await sb().rpc('mark_photo_downloaded', { p_name: name }); } catch (e) {}
   refreshList();
 }
@@ -586,7 +634,7 @@ async function downloadFile(name) {
 async function removeFiles(names) {
   const { data, error } = await sb().storage.from(BUCKET).remove(names);
   if (error) throw error;
-  if (!data || !data.length) throw new Error('файл не удалён: проверь политику удаления в Supabase');
+  if (!data || !data.length) throw new Error(t('noPolicy'));
   return data.length;
 }
 
@@ -595,26 +643,38 @@ async function deleteFile(name) {
   if (!p) return;
   try {
     await removeFiles([name]);
-    msg(`Удалено: ${p.serial}.jpg`);
+    msg(t('deleted', { f: p.serial + '.jpg' }));
   } catch (err) {
-    msg('Ошибка удаления: ' + (err.message || err));
+    msg(t('delErr', { e: err.message || err }));
   }
   refreshList();
 }
 
 async function deleteAll() {
   if (!listed.length) return;
-  if (!confirm(`Удалить все фото (${listed.length} шт.)? Это нельзя отменить.`)) return;
+  if (!confirm(t('confirmAll', { n: listed.length }))) return;
   try {
     const n = await removeFiles(listed.slice());
-    msg(`Удалено фото: ${n}`);
+    msg(t('deletedN', { n }));
   } catch (err) {
-    msg('Ошибка удаления: ' + (err.message || err));
+    msg(t('delErr', { e: err.message || err }));
   }
   refreshList();
 }
 
 /* ---------- Контракт страницы ---------- */
+
+// Переводит статичные надписи страницы
+function applyText() {
+  const root = $(PAGE_ID);
+  if (!root) return;
+  root.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  root.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    const v = t(el.dataset.i18nAria);
+    el.setAttribute('aria-label', v);
+    // у кнопки списка внутри лежит счётчик: её текст не трогаем
+  });
+}
 
 export function init() {
   const root = $(PAGE_ID);
@@ -624,6 +684,8 @@ export function init() {
   style.textContent = STYLE;
   document.head.appendChild(style);
   root.innerHTML = MARKUP;
+  applyText();
+  onLangChange(() => { applyText(); showAuto(); if (inited) refreshList(); });
   $('ph-snap').addEventListener('click', takeShot);
   $('ph-cam').addEventListener('change', () => { userCam = true; startCamera(); });
   $('ph-refresh').addEventListener('click', refreshList);

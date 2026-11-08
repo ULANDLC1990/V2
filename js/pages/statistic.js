@@ -1,5 +1,5 @@
 /* Statistic (вкладка «Statistic»): статистика за период, стиль сайта, без колонки Name.
-   Язык берётся из общего i18n.js. Все 10 мов сайту.
+   Язык берётся из общего i18n.js. Мови: uk / pl / en.
    Контейнер: <section id="statsPage">. Дані завантажуються при першому відкритті сторінки (show()).
    Источник данных: база Supabase, таблица fi_log (её каждую минуту заполняет скрипт из рабочей Google Таблицы). */
 import { sb } from '../core/supabase.js';
@@ -9,7 +9,7 @@ import { createTranslator, onLangChange } from '../i18n.js';
 
 const VALID_STATUSES = ['OK', 'NDF'];
 
-/* ===== Переклади (10 мов, як на сайті) ===== */
+/* ===== Переклади (uk / pl / en) ===== */
 const I18N = {
   en: {
     from: 'From', to: 'To', workers: 'Workers', all: 'all', selectAll: 'Select all', clearAll: 'Clear all',
@@ -25,61 +25,12 @@ const I18N = {
     scrapNoData: 'Немає даних', totalRow: 'Разом', mainTitle: 'Статистика',
     loadErr: 'Не вдалося завантажити дані'
   },
-  ru: {
-    from: 'С', to: 'По', workers: 'Сотрудники', all: 'все', selectAll: 'Выбрать всех', clearAll: 'Снять всех',
-    update: 'Обновить', updating: 'Загрузка...', noData: 'Нет данных для выбранных сотрудников',
-    total: 'Итого (Сумма / OK / NDF)', days: 'Дней', scrapTitle: '📊 Статистика Scrap / Waiting',
-    scrapNoData: 'Нет данных', totalRow: 'Итого', mainTitle: 'Статистика',
-    loadErr: 'Не удалось загрузить данные'
-  },
   pl: {
     from: 'Od', to: 'Do', workers: 'Pracownicy', all: 'wszyscy', selectAll: 'Zaznacz wszystkich', clearAll: 'Odznacz wszystkich',
     update: 'Aktualizuj', updating: 'Ładowanie...', noData: 'Brak danych dla wybranych pracowników',
     total: 'Razem (Sum / OK / NDF)', days: 'Dni', scrapTitle: '📊 Scrap / Waiting Statistics',
     scrapNoData: 'Brak danych', totalRow: 'Razem / Total', mainTitle: 'Statystyka',
     loadErr: 'Nie udało się wczytać danych'
-  },
-  de: {
-    from: 'Von', to: 'Bis', workers: 'Mitarbeiter', all: 'alle', selectAll: 'Alle auswählen', clearAll: 'Alle abwählen',
-    update: 'Aktualisieren', updating: 'Lade...', noData: 'Keine Daten für die gewählten Mitarbeiter',
-    total: 'Gesamt (Summe / OK / NDF)', days: 'Tage', scrapTitle: '📊 Scrap-/Waiting-Statistik',
-    scrapNoData: 'Keine Daten', totalRow: 'Gesamt', mainTitle: 'Statistik',
-    loadErr: 'Daten konnten nicht geladen werden'
-  },
-  fr: {
-    from: 'Du', to: 'Au', workers: 'Employés', all: 'tous', selectAll: 'Tout sélectionner', clearAll: 'Tout désélectionner',
-    update: 'Actualiser', updating: 'Chargement...', noData: 'Aucune donnée pour les employés sélectionnés',
-    total: 'Total (Somme / OK / NDF)', days: 'Jours', scrapTitle: '📊 Statistiques Scrap / Waiting',
-    scrapNoData: 'Aucune donnée', totalRow: 'Total', mainTitle: 'Statistiques',
-    loadErr: 'Échec du chargement des données'
-  },
-  es: {
-    from: 'Desde', to: 'Hasta', workers: 'Empleados', all: 'todos', selectAll: 'Seleccionar todos', clearAll: 'Desmarcar todos',
-    update: 'Actualizar', updating: 'Cargando...', noData: 'No hay datos de los empleados seleccionados',
-    total: 'Total (Suma / OK / NDF)', days: 'Días', scrapTitle: '📊 Estadística Scrap / Waiting',
-    scrapNoData: 'Sin datos', totalRow: 'Total', mainTitle: 'Estadística',
-    loadErr: 'No se pudieron cargar los datos'
-  },
-  it: {
-    from: 'Da', to: 'A', workers: 'Dipendenti', all: 'tutti', selectAll: 'Seleziona tutti', clearAll: 'Deseleziona tutti',
-    update: 'Aggiorna', updating: 'Caricamento...', noData: 'Nessun dato per i dipendenti selezionati',
-    total: 'Totale (Somma / OK / NDF)', days: 'Giorni', scrapTitle: '📊 Statistiche Scrap / Waiting',
-    scrapNoData: 'Nessun dato', totalRow: 'Totale', mainTitle: 'Statistiche',
-    loadErr: 'Impossibile caricare i dati'
-  },
-  pt: {
-    from: 'De', to: 'Até', workers: 'Funcionários', all: 'todos', selectAll: 'Selecionar todos', clearAll: 'Desmarcar todos',
-    update: 'Atualizar', updating: 'Carregando...', noData: 'Sem dados para os funcionários selecionados',
-    total: 'Total (Soma / OK / NDF)', days: 'Dias', scrapTitle: '📊 Estatística Scrap / Waiting',
-    scrapNoData: 'Sem dados', totalRow: 'Total', mainTitle: 'Estatísticas',
-    loadErr: 'Falha ao carregar os dados'
-  },
-  tr: {
-    from: 'Başlangıç', to: 'Bitiş', workers: 'Çalışanlar', all: 'tümü', selectAll: 'Tümünü seç', clearAll: 'Tümünü kaldır',
-    update: 'Güncelle', updating: 'Yükleniyor...', noData: 'Seçilen çalışanlar için veri yok',
-    total: 'Toplam (Toplam / OK / NDF)', days: 'Gün', scrapTitle: '📊 Scrap / Waiting istatistikleri',
-    scrapNoData: 'Veri yok', totalRow: 'Toplam', mainTitle: 'İstatistikler',
-    loadErr: 'Veriler yüklenemedi'
   }
 };
 const t = createTranslator(I18N);

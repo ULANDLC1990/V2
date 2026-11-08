@@ -184,15 +184,6 @@ const T = {
     install: 'Install as an app', installed: 'Installed as an app', iosHint: 'To install: Share → Add to Home Screen',
     now: 'just now', min: 'min', h: 'h', d: 'd', ago: 'ago', level: { ok: 'All good', warn: 'Attention', bad: 'Problem', unknown: 'Checking…' }
   },
-  ru: {
-    title: 'Состояние сайта', internet: 'Интернет', on: 'есть', off: 'нет связи', db: 'База данных',
-    dbOk: 'OK, {ms} мс', dbFail: 'не отвечает', dbWait: 'проверяется…', data: 'Последнее обновление данных сегодня', dataNone: 'сегодня данных ещё нет',
-    pnbase: 'База PN на этом устройстве', rows: 'строк, обновлена', never: 'ещё не загружена', queue: 'Repair Log, ждут отправки',
-    version: 'Версия сайта', device: 'Устройство', devName: 'Название устройства', devNamePh: 'например: Станция II, ПК',
-    errors: 'Ошибки на этом устройстве', noErrors: 'ошибок нет', copy: 'Копировать журнал', copied: 'Скопировано', clear: 'Очистить', close: 'Закрыть',
-    install: 'Установить как приложение', installed: 'Установлено как приложение', iosHint: 'Чтобы установить: Поделиться → На экран «Домой»',
-    now: 'только что', min: 'мин', h: 'ч', d: 'д', ago: 'назад', level: { ok: 'Всё в порядке', warn: 'Внимание', bad: 'Проблема', unknown: 'Проверка…' }
-  },
   uk: {
     title: 'Стан сайту', internet: 'Інтернет', on: 'є', off: 'немає зв\'язку', db: 'База даних',
     dbOk: 'OK, {ms} мс', dbFail: 'не відповідає', dbWait: 'перевіряється…', data: 'Останнє оновлення даних сьогодні', dataNone: 'сьогодні даних ще немає',

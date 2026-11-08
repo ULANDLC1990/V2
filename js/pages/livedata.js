@@ -1,5 +1,5 @@
 /* Статистика по днях (Statistic per day): LCDR Live Data, версія для сайту.
-   Язык берётся из общего i18n.js. Все 10 мов сайту.
+   Язык берётся из общего i18n.js. Мови: uk / pl / en.
    Контейнер: <section id="livePage">. Дані завантажуються при першому відкритті сторінки (show()).
    Источник данных: Google Таблицы (читаются без ключа API через core/sheets.js):
      - журналы станций FI 1 и FI 2 (рабочая таблица);
@@ -19,7 +19,7 @@ const SHEET_PARTS_ID = '1Ets--Hho-SK_x6J9Xy3oVA7ILtYKx4gscBOwy6t4PTs';
 const SHEET_PN_ID = '1UWu4bcuHg6NHhK8ZvjDlQAIue6R1FLBlmAlBhHBj-D8';
 const SHEET_PN_GID = 1460654843;
 
-/* ===== Переклади (10 мов, як на сайті) ===== */
+/* ===== Переклади (uk / pl / en) ===== */
 const I18N = {
   en: {
     titleHint: 'Click on the date to copy SN. Double-click to show the table full screen',
@@ -53,22 +53,6 @@ const I18N = {
     pnLoading: 'Завантаження даних (pn)...', pnEmpty: 'На аркуші pn немає даних!', pnCopyHint: 'Натисніть, щоб скопіювати весь рядок',
     bulkCopyHint: 'Натисніть, щоб скопіювати серійні номери цього працівника'
   },
-  ru: {
-    titleHint: 'Нажмите на дату, чтобы скопировать SN. Двойной клик — таблица на весь экран',
-    searchPh: 'Введите SN / PN детали (Enter)', bulkPh: 'Вставьте SN, каждый с новой строки. Ctrl+Enter = поиск',
-    modeSingle: 'Один', modeBulk: 'Список', bulkRun: 'ПОИСК',
-    diagTitle: 'Диагонали станций FI',
-    sum: 'СУММА', total: 'ИТОГО', name: 'СОТРУДНИК',
-    copyNone: 'Нет данных', copyOk: '✓ Скопировано: {n}', copyErr: 'Ошибка копирования',
-    noInfo: 'Нет информации!', notFound: 'НЕ НАЙДЕНО', notFoundCount: 'НЕ НАЙДЕНО — [{n}]',
-    close: 'ЗАКРЫТЬ', modalNoData: 'На сегодня данных по этому сотруднику нет.',
-    hSerial: 'Serial', hType: 'Тип', hStatus: 'Статус', hOc: 'OC', hComment: 'Комментарий',
-    hDate: 'Дата', hFinal: 'Финальная', hInfo: 'Инфо', hRepairer: 'Ремонтник', unknown: 'НЕИЗВЕСТНО',
-    phOk: 'Скачано: {n}', phNone: 'Нет фото для {n}', phErr: 'Ошибка скачивания фото', phHint: 'Двойной клик — скачать фото',
-    loadErr: 'Не удалось загрузить данные',
-    pnLoading: 'Загрузка данных (pn)...', pnEmpty: 'На листе pn нет данных!', pnCopyHint: 'Нажмите, чтобы скопировать всю строку',
-    bulkCopyHint: 'Нажмите, чтобы скопировать серийные номера этого работника'
-  },
   pl: {
     titleHint: 'Kliknij datę, aby skopiować SN. Podwójne kliknięcie — pełny ekran',
     searchPh: 'Podaj SN / PN części (Enter)', bulkPh: 'Wklej numery SN, każdy w nowej linii. Ctrl+Enter = szukaj',
@@ -84,102 +68,6 @@ const I18N = {
     loadErr: 'Nie udało się wczytać danych',
     pnLoading: 'Pobieranie danych (pn)...', pnEmpty: 'Brak danych na arkuszu pn!', pnCopyHint: 'Kliknij, aby skopiować cały wiersz',
     bulkCopyHint: 'Kliknij, aby skopiować numery seryjne tego pracownika'
-  },
-  de: {
-    titleHint: 'Auf das Datum klicken, um SN zu kopieren. Doppelklick = Vollbild',
-    searchPh: 'SN / Teilenummer eingeben (Enter)', bulkPh: 'SN-Nummern einfügen, eine pro Zeile. Strg+Enter = suchen',
-    modeSingle: 'Einzeln', modeBulk: 'Liste', bulkRun: 'SUCHEN',
-    diagTitle: 'FI-Stationsdiagonalen',
-    sum: 'SUMME', total: 'GESAMT', name: 'NAME',
-    copyNone: 'Keine Daten', copyOk: '✓ Kopiert: {n}', copyErr: 'Kopierfehler',
-    noInfo: 'Keine Info!', notFound: 'NICHT GEFUNDEN', notFoundCount: 'NICHT GEFUNDEN — [{n}]',
-    close: 'SCHLIESSEN', modalNoData: 'Heute keine Daten für diesen Mitarbeiter.',
-    hSerial: 'Serial', hType: 'Typ', hStatus: 'Status', hOc: 'OC', hComment: 'Kommentar',
-    hDate: 'Datum', hFinal: 'Final', hInfo: 'Info', hRepairer: 'Reparateur', unknown: 'UNBEKANNT',
-    phOk: 'Heruntergeladen: {n}', phNone: 'Kein Foto für {n}', phErr: 'Fehler beim Foto-Download', phHint: 'Doppelklick zum Herunterladen des Fotos',
-    loadErr: 'Daten konnten nicht geladen werden',
-    pnLoading: 'Daten werden geladen (pn)...', pnEmpty: 'Keine Daten im Blatt pn!', pnCopyHint: 'Klicken, um die ganze Zeile zu kopieren',
-    bulkCopyHint: 'Klicken, um die Seriennummern dieses Mitarbeiters zu kopieren'
-  },
-  fr: {
-    titleHint: 'Cliquez sur la date pour copier le SN. Double-clic = plein écran',
-    searchPh: 'Saisissez SN / référence (Entrée)', bulkPh: 'Collez les SN, un par ligne. Ctrl+Entrée = rechercher',
-    modeSingle: 'Unitaire', modeBulk: 'Liste', bulkRun: 'RECHERCHER',
-    diagTitle: 'Diagonales des stations FI',
-    sum: 'SOMME', total: 'TOTAL', name: 'NOM',
-    copyNone: 'Aucune donnée', copyOk: '✓ Copié : {n}', copyErr: 'Erreur de copie',
-    noInfo: 'Aucune info !', notFound: 'INTROUVABLE', notFoundCount: 'INTROUVABLE — [{n}]',
-    close: 'FERMER', modalNoData: "Aucune donnée pour cet employé aujourd'hui.",
-    hSerial: 'Serial', hType: 'Type', hStatus: 'Statut', hOc: 'OC', hComment: 'Commentaire',
-    hDate: 'Date', hFinal: 'Finale', hInfo: 'Info', hRepairer: 'Réparateur', unknown: 'INCONNU',
-    phOk: 'Téléchargé : {n}', phNone: 'Aucune photo pour {n}', phErr: 'Erreur de téléchargement de la photo', phHint: 'Double-clic pour télécharger la photo',
-    loadErr: 'Échec du chargement des données',
-    pnLoading: 'Chargement des données (pn)...', pnEmpty: 'Aucune donnée dans la feuille pn !', pnCopyHint: 'Cliquez pour copier toute la ligne',
-    bulkCopyHint: 'Cliquez pour copier les numéros de série de cet employé'
-  },
-  es: {
-    titleHint: 'Haga clic en la fecha para copiar el SN. Doble clic = pantalla completa',
-    searchPh: 'Introduzca SN / referencia (Intro)', bulkPh: 'Pegue los SN, uno por línea. Ctrl+Intro = buscar',
-    modeSingle: 'Individual', modeBulk: 'Lista', bulkRun: 'BUSCAR',
-    diagTitle: 'Diagonales de estaciones FI',
-    sum: 'SUMA', total: 'TOTAL', name: 'NOMBRE',
-    copyNone: 'Sin datos', copyOk: '✓ Copiados: {n}', copyErr: 'Error al copiar',
-    noInfo: '¡Sin información!', notFound: 'NO ENCONTRADO', notFoundCount: 'NO ENCONTRADO — [{n}]',
-    close: 'CERRAR', modalNoData: 'No hay datos de este empleado para hoy.',
-    hSerial: 'Serial', hType: 'Tipo', hStatus: 'Estado', hOc: 'OC', hComment: 'Comentario',
-    hDate: 'Fecha', hFinal: 'Final', hInfo: 'Info', hRepairer: 'Reparador', unknown: 'DESCONOCIDO',
-    phOk: 'Descargado: {n}', phNone: 'No hay foto de {n}', phErr: 'Error al descargar la foto', phHint: 'Doble clic para descargar la foto',
-    loadErr: 'No se pudieron cargar los datos',
-    pnLoading: 'Cargando datos (pn)...', pnEmpty: '¡No hay datos en la hoja pn!', pnCopyHint: 'Haga clic para copiar toda la fila',
-    bulkCopyHint: 'Haga clic para copiar los números de serie de este empleado'
-  },
-  it: {
-    titleHint: "Clicca sulla data per copiare l'SN. Doppio clic = schermo intero",
-    searchPh: 'Inserisci SN / codice parte (Invio)', bulkPh: 'Incolla gli SN, uno per riga. Ctrl+Invio = cerca',
-    modeSingle: 'Singolo', modeBulk: 'Elenco', bulkRun: 'CERCA',
-    diagTitle: 'Diagonali stazioni FI',
-    sum: 'SOMMA', total: 'TOTALE', name: 'NOME',
-    copyNone: 'Nessun dato', copyOk: '✓ Copiati: {n}', copyErr: 'Errore di copia',
-    noInfo: 'Nessuna info!', notFound: 'NON TROVATO', notFoundCount: 'NON TROVATO — [{n}]',
-    close: 'CHIUDI', modalNoData: 'Nessun dato per questo dipendente oggi.',
-    hSerial: 'Serial', hType: 'Tipo', hStatus: 'Stato', hOc: 'OC', hComment: 'Commento',
-    hDate: 'Data', hFinal: 'Finale', hInfo: 'Info', hRepairer: 'Riparatore', unknown: 'SCONOSCIUTO',
-    phOk: 'Scaricato: {n}', phNone: 'Nessuna foto per {n}', phErr: 'Errore di download della foto', phHint: 'Doppio clic per scaricare la foto',
-    loadErr: 'Impossibile caricare i dati',
-    pnLoading: 'Caricamento dati (pn)...', pnEmpty: 'Nessun dato nel foglio pn!', pnCopyHint: "Clicca per copiare l'intera riga",
-    bulkCopyHint: 'Clicca per copiare i numeri di serie di questo operatore'
-  },
-  pt: {
-    titleHint: 'Clique na data para copiar o SN. Duplo clique = tela cheia',
-    searchPh: 'Digite SN / referência (Enter)', bulkPh: 'Cole os SN, um por linha. Ctrl+Enter = pesquisar',
-    modeSingle: 'Individual', modeBulk: 'Lista', bulkRun: 'PESQUISAR',
-    diagTitle: 'Diagonais das estações FI',
-    sum: 'SOMA', total: 'TOTAL', name: 'NOME',
-    copyNone: 'Sem dados', copyOk: '✓ Copiados: {n}', copyErr: 'Erro ao copiar',
-    noInfo: 'Sem informações!', notFound: 'NÃO ENCONTRADO', notFoundCount: 'NÃO ENCONTRADO — [{n}]',
-    close: 'FECHAR', modalNoData: 'Não há dados deste funcionário para hoje.',
-    hSerial: 'Serial', hType: 'Tipo', hStatus: 'Status', hOc: 'OC', hComment: 'Comentário',
-    hDate: 'Data', hFinal: 'Final', hInfo: 'Info', hRepairer: 'Reparador', unknown: 'DESCONHECIDO',
-    phOk: 'Baixado: {n}', phNone: 'Sem foto para {n}', phErr: 'Erro ao baixar a foto', phHint: 'Clique duas vezes para baixar a foto',
-    loadErr: 'Falha ao carregar os dados',
-    pnLoading: 'Carregando dados (pn)...', pnEmpty: 'Sem dados na planilha pn!', pnCopyHint: 'Clique para copiar a linha inteira',
-    bulkCopyHint: 'Clique para copiar os números de série deste funcionário'
-  },
-  tr: {
-    titleHint: 'SN kopyalamak için tarihe tıklayın. Çift tıklama = tam ekran',
-    searchPh: 'SN / parça numarası girin (Enter)', bulkPh: 'SN numaralarını yapıştırın, her satıra bir tane. Ctrl+Enter = ara',
-    modeSingle: 'Tekli', modeBulk: 'Toplu', bulkRun: 'ARA',
-    diagTitle: 'FI İstasyon köşegenleri',
-    sum: 'TOPLAM', total: 'TOPLAM', name: 'AD',
-    copyNone: 'Veri yok', copyOk: '✓ Kopyalandı: {n}', copyErr: 'Kopyalama hatası',
-    noInfo: 'Bilgi yok!', notFound: 'BULUNAMADI', notFoundCount: 'BULUNAMADI — [{n}]',
-    close: 'KAPAT', modalNoData: 'Bugün bu çalışan için veri yok.',
-    hSerial: 'Serial', hType: 'Tip', hStatus: 'Durum', hOc: 'OC', hComment: 'Yorum',
-    hDate: 'Tarih', hFinal: 'Final', hInfo: 'Bilgi', hRepairer: 'Onarımcı', unknown: 'BİLİNMİYOR',
-    phOk: 'İndirildi: {n}', phNone: '{n} için fotoğraf yok', phErr: 'Fotoğraf indirme hatası', phHint: 'Fotoğrafı indirmek için çift tıklayın',
-    loadErr: 'Veriler yüklenemedi',
-    pnLoading: 'Veriler yükleniyor (pn)...', pnEmpty: 'pn sayfasında veri yok!', pnCopyHint: 'Tüm satırı kopyalamak için tıklayın',
-    bulkCopyHint: 'Bu çalışanın seri numaralarını kopyalamak için tıklayın'
   }
 };
 const t = createTranslator(I18N);

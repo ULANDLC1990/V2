@@ -1,6 +1,6 @@
 /* Repair Log (скрытая вкладка «Secret», открывается по Alt+Q).
    Контейнер: <section id="secretPage">. Записи хранятся в таблице repair_log (Supabase).
-   Язык: en / ru / uk / pl (остальные языки сайта показывают английский).
+   Язык: en / uk / pl.
    Печать этикеток после записи: printFinal2BySn из pages/final.js. */
 import { sb, hasSupabase } from '../core/supabase.js';
 import { pnbInfo } from '../core/pncache.js';
@@ -86,15 +86,6 @@ const T = {
     noPrinter: 'Label printing is not available on this page.',
     offline: 'No connection. Records are saved on this device and will be sent automatically.', pending: ' Waiting to send: ', sent: 'Sent: ', labelsLeft: 'Connection restored, records sent. Labels were NOT printed for:\n', sendErr: ' Send error: ', baseInfo: 'PN base on this device: ', baseRows: ' rows, updated ', baseLoading: 'not loaded yet'
   },
-  ru: {
-    title: 'Журнал ремонта', sn: 'Серийный номер', date: 'Дата', time: 'Время', status: 'Статус',
-    add: '+ Добавить', statusPh: 'Статус (OK, VV, H...)',
-    search: 'Поиск по серийному номеру (вся база)', empty: 'Нет записей',
-    clear: 'Очистить статус', errLoad: 'Ошибка загрузки: ', errSave: 'Ошибка сохранения: ',
-    noPn: 'PN не найден в базе. Этикетка не напечатана.',
-    noPrinter: 'Печать этикеток недоступна на этой странице.',
-    offline: 'Нет связи с базой. Записи сохранены на этом устройстве и отправятся сами.', pending: ' Ждут отправки: ', sent: 'Отправлено: ', labelsLeft: 'Связь восстановлена, записи отправлены. Этикетки НЕ напечатаны для:\n', sendErr: ' Ошибка отправки: ', baseInfo: 'База PN на устройстве: ', baseRows: ' строк, обновлена ', baseLoading: 'ещё не загружена'
-  },
   uk: {
     title: 'Журнал ремонту', sn: 'Серійний номер', date: 'Дата', time: 'Час', status: 'Статус',
     add: '+ Додати', statusPh: 'Статус (OK, VV, H...)',
@@ -114,7 +105,7 @@ const T = {
     offline: 'Brak połączenia z bazą. Wpisy są zapisane na tym urządzeniu i zostaną wysłane automatycznie.', pending: ' Czeka na wysłanie: ', sent: 'Wysłano: ', labelsLeft: 'Połączenie przywrócone, wpisy wysłane. Etykiety NIE zostały wydrukowane dla:\n', sendErr: ' Błąd wysyłania: ', baseInfo: 'Baza PN na urządzeniu: ', baseRows: ' wierszy, zaktualizowana ', baseLoading: 'jeszcze nie wczytana'
   }
 };
-const tr = () => T[resolveLang(['ru', 'uk', 'pl', 'en'])];
+const tr = () => T[resolveLang(['uk', 'pl', 'en'])];
 
 // Раскладка, градиенты строк и кнопок сокращений
 const LAYOUT_CSS = `
@@ -230,7 +221,7 @@ const LAYOUT_CSS = `
 
 /* Раскладка зависит от ширины самого блока, а не окна: в узком окне форма и кнопки статусов
    не помещаются в один ряд, поэтому кнопки уходят под форму */
-#secretPage .rl-wrap { container-type: inline-size; }
+#secretPage .rl-wrap { container-type: inline-size; width: 100%; box-sizing: border-box; }
 @container (max-width: 66rem) {
   #secretPage .rl-top { grid-template-columns: minmax(0, 1fr); }
   #secretPage .rl-codes { grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr)); }
