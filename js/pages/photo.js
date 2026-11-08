@@ -87,7 +87,7 @@ html.touch-phone #photoPage .ph-auto:empty { display: none; }
 html.touch-phone #photoPage #ph-cam { position: absolute; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 54px); left: 12px;
   max-width: calc(100% - 24px); min-width: 0; background: rgba(0,0,0,.6); border-color: rgba(255,255,255,.25); }
 html.touch-phone #photoPage .ph-msg { position: absolute; z-index: 3; left: 12px; right: 12px; margin: 0; text-align: center;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 128px); padding: 8px 12px; border-radius: 12px; background: rgba(0,0,0,.65); color: #fff; font-size: 14px; }
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 178px); padding: 8px 12px; border-radius: 12px; background: rgba(0,0,0,.65); color: #fff; font-size: 14px; }
 html.touch-phone #photoPage .ph-msg:empty { display: none; }
 /* Кнопка съёмки: большой белый круг внизу по центру, как в камере iPhone */
 html.touch-phone #photoPage #ph-snap { position: absolute; z-index: 4; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
@@ -117,6 +117,20 @@ html.touch-phone #photoPage .ph-wrap.ph-open .ph-listbox { display: block; }
 html.touch-phone #photoPage .ph-wrap.ph-open .ph-close { display: block; position: absolute; z-index: 8; top: calc(env(safe-area-inset-top, 0px) + 10px);
   right: 12px; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 12px; background: #374151; color: #fff; font-size: 20px; cursor: pointer; }
 html.touch-phone.ph-camera #langFlags { display: none !important; }
+
+/* Как в стандартной камере: без надписи SN и без списка камер, зум 0,5 / 1 над затвором */
+html.touch-phone #photoPage .ph-auto, html.touch-phone #photoPage #ph-cam { display: none !important; }
+#photoPage .ph-zoom { display: none; }
+html.touch-phone #photoPage .ph-zoom.has { display: flex; position: absolute; z-index: 4; left: 50%; transform: translateX(-50%); gap: 6px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 124px); padding: 4px; border-radius: 24px; background: rgba(0,0,0,.45); }
+html.touch-phone #photoPage .ph-zoom button { min-width: 38px; height: 38px; padding: 0 6px; border: 0; border-radius: 19px; background: transparent;
+  color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+html.touch-phone #photoPage .ph-zoom button.on { background: rgba(0,0,0,.55); color: #ffd60a; }
+@media (orientation: landscape) {
+  html.touch-phone #photoPage .ph-zoom.has { left: auto; right: calc(env(safe-area-inset-right, 0px) + 28px); transform: none;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 114px); }
+}
+#photoPage .ph-thumb.has-img { font-size: 0; background-size: cover; background-position: center; }
 `;
 
 const MARKUP = `
@@ -131,6 +145,7 @@ const MARKUP = `
     <div class="ph-box"><video id="ph-video" autoplay playsinline muted></video></div>
   </div>
   <div class="ph-msg" id="ph-msg"></div>
+  <div class="ph-zoom" id="ph-zoom"><button type="button" data-z="0.5">0,5</button><button type="button" data-z="1" class="on">1</button></div>
   <button type="button" class="ph-thumb" id="ph-thumb" aria-label="Фото">🖼<span class="ph-count" id="ph-count"></span></button>
   <div class="ph-flash" id="ph-flash"></div>
   <button type="button" class="ph-close" id="ph-close" aria-label="Закрыть">✕</button>
@@ -297,6 +312,70 @@ function pickPreferredCamera(devices) {
   return devices.find(d => back.test(l(d)) && !ultra.test(l(d)) && !/(телефото|telephoto|tele|тройн|потрійн|triple)/.test(l(d))) || null;
 }
 
+// Сверхширокая камера (0,5×). Названия зависят от языка iPhone
+function pickUltraCamera(devices) {
+  const l = (d) => (d.label || '').toLowerCase();
+  return devices.find(d => /(задн|back|rear|tyln|tylny)/.test(l(d)) && /(сверх|надш|ultra|ultraszerok)/.test(l(d))) || null;
+}
+
+// Кнопки 0,5 и 1 как в камере телефона. iPhone: это две разные камеры. Android: зум самой камеры
+let zoomMode = '';   // device | zoom | ''
+let zoomIds = { main: '', ultra: '' };
+
+function markZoom(active) {
+  const box = $('ph-zoom');
+  if (!box) return;
+  box.querySelectorAll('button').forEach((b) => {
+    const on = Number(b.dataset.z) === active;
+    b.classList.toggle('on', on);
+    b.textContent = (b.dataset.z === '0.5' ? '0,5' : '1') + (on ? '×' : '');
+  });
+}
+
+async function setupZoom() {
+  const box = $('ph-zoom');
+  if (!box) return;
+  zoomMode = '';
+  box.classList.remove('has');
+  if (!isTouch() || !stream) return;
+  const track = stream.getVideoTracks && stream.getVideoTracks()[0];
+  if (!track) return;
+  const curId = track.getSettings ? (track.getSettings().deviceId || '') : '';
+  const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+  const main = pickPreferredCamera(devs), ultra = pickUltraCamera(devs);
+  if (main && ultra) {
+    zoomMode = 'device';
+    zoomIds = { main: main.deviceId, ultra: ultra.deviceId };
+    box.classList.add('has');
+    markZoom(curId === ultra.deviceId ? 0.5 : 1);
+    return;
+  }
+  const caps = track.getCapabilities ? track.getCapabilities() : {};
+  if (caps.zoom && caps.zoom.min <= 0.6) {
+    zoomMode = 'zoom';
+    box.classList.add('has');
+    const z = track.getSettings ? track.getSettings().zoom : 1;
+    markZoom(z && z < 0.9 ? 0.5 : 1);
+  }
+}
+
+async function onZoomClick(value) {
+  if (zoomMode === 'device') {
+    const id = value === 0.5 ? zoomIds.ultra : zoomIds.main;
+    $('ph-cam').value = id;
+    userCam = true;
+    markZoom(value);
+    await startCamera();
+  } else if (zoomMode === 'zoom') {
+    const track = stream && stream.getVideoTracks()[0];
+    if (!track) return;
+    try {
+      await track.applyConstraints({ advanced: [{ zoom: value }] });
+      markZoom(value);
+    } catch (e) { msg('Зум недоступен: ' + e.message); }
+  }
+}
+
 async function fillCameraList() {
   const sel = $('ph-cam');
   const current = sel.value;
@@ -345,6 +424,7 @@ async function startCamera() {
         if (pref.deviceId !== curId) { await startCamera(); return; }
       }
     }
+    await setupZoom();
   } catch (err) {
     msg('Камера недоступна: ' + err.name + ' — ' + err.message);
   }
@@ -359,6 +439,19 @@ function flash() {
   try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {}
 }
 
+// Последний снимок на кнопке слева внизу, как в камере телефона
+function setThumb(src) {
+  try {
+    const t = $('ph-thumb');
+    const c = document.createElement('canvas');
+    c.width = c.height = 116;
+    const side = Math.min(src.width, src.height);
+    c.getContext('2d').drawImage(src, (src.width - side) / 2, (src.height - side) / 2, side, side, 0, 0, 116, 116);
+    t.style.backgroundImage = `url(${c.toDataURL('image/jpeg', 0.7)})`;
+    t.classList.add('has-img');
+  } catch (e) {}
+}
+
 async function takeShot() {
   const video = $('ph-video');
   if (!stream || !video.videoWidth) { msg('Камера ещё не готова'); return; }
@@ -371,6 +464,7 @@ async function takeShot() {
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
   if (!blob) { msg('Не удалось создать снимок'); return; }
   flash();
+  setThumb(canvas);
 
   // Серийный номер: самый свежий из Repair Log
   await refreshAuto();
@@ -533,6 +627,7 @@ export function init() {
   $('ph-snap').addEventListener('click', takeShot);
   $('ph-cam').addEventListener('change', () => { userCam = true; startCamera(); });
   $('ph-refresh').addEventListener('click', refreshList);
+  $('ph-zoom').addEventListener('click', (e) => { const b = e.target.closest('button[data-z]'); if (b) onZoomClick(Number(b.dataset.z)); });
   $('ph-thumb').addEventListener('click', () => { $('ph-wrap').classList.add('ph-open'); refreshList(); });
   $('ph-close').addEventListener('click', () => $('ph-wrap').classList.remove('ph-open'));
   $('ph-delall').addEventListener('click', deleteAll);
@@ -556,6 +651,7 @@ export function show() {
   if (!inited) return;
   document.documentElement.classList.add('ph-camera');
   $('ph-wrap').classList.remove('ph-open');
+  if (isTouch()) { userCam = false; $('ph-cam').selectedIndex = -1; }
   autoCamTried = false;
   startCamera();
   refreshList();
