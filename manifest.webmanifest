@@ -1,6 +1,6 @@
 {
-  "name": "LCDR HUB",
-  "short_name": "LCDR",
+  "name": "&nbsp;",
+  "short_name": "&nbsp;",
   "description": "LCD Repair Center: печать этикеток, журнал ремонта, статистика",
   "start_url": "./",
   "scope": "./",
