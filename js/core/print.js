@@ -4,9 +4,14 @@ import { esc } from './util.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
+// Белая страница без полей: одинаково для всех печатных документов
+export const PRINT_RESET = 'html,body{margin:0;padding:0;background:#fff}';
+// Размер листа в миллиметрах + сброс полей (w и h уже с единицами или числа в мм)
+export const pageCss = (w, h) => `@page{size:${w}mm ${h}mm;margin:0}${PRINT_RESET}`;
+
 // Стили печати (этикетки печатаются в отдельном документе внутри iframe)
 export const PRINT_CSS = `
-html,body{margin:0;padding:0;background:#fff}
+${PRINT_RESET}
 .pg{break-after:page;page-break-after:always}
 .pg:last-child{break-after:auto;page-break-after:auto}
 .lbl-std{width:100mm;height:77.6mm;position:relative;background:#fff;color:#000;padding:3.2mm 4mm 2.8mm;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;overflow:hidden}

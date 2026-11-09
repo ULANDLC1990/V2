@@ -5,6 +5,7 @@
    Картинка ICON береться з файлу icon.jpg у корені сайту.
    Нижче також пісочниця етикетки RDL400FY (76x40 мм на аркуші 130x76 мм). */
 import { esc } from '../core/util.js';
+import { printInFrame, pageCss } from '../core/print.js';
 import { createTranslator, onLangChange } from '../i18n.js';
 
 const ICON_SRC = 'icon.jpg';
@@ -90,19 +91,6 @@ function applyText() {
   document.querySelectorAll('#specialPage [data-sp]').forEach(el => { el.textContent = t(el.dataset.sp); });
   const rd = document.getElementById('rdPrint');
   if (rd) rd.textContent = t('print');
-}
-
-function printInFrame(html) {
-  const old = document.getElementById('spPrintFrame');
-  if (old) old.remove();
-  const f = document.createElement('iframe');
-  f.id = 'spPrintFrame';
-  f.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none;';
-  document.body.appendChild(f);
-  const win = f.contentWindow;
-  win.document.open(); win.document.write(html); win.document.close();
-  win.onafterprint = () => setTimeout(() => f.remove(), 500);
-  setTimeout(() => { win.focus(); win.print(); }, 250);
 }
 
 // Текст у SCC переноситься по словах і підбирається до найбільшого розміру, що влазить у зону тексту
@@ -380,8 +368,7 @@ function initRdl(host) {
     const r = render(true), url = r.toDataURL('image/png'), w = g('pw').value, h = g('ph').value;
     const dot = 25.4 / (+g('dpi').value || 203), wm = (r.width * dot).toFixed(4), hm = (r.height * dot).toFixed(4);
     printInFrame(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LABEL</title><style>
-      @page { size: ${w}mm ${h}mm; margin: 0; }
-      html, body { margin: 0; padding: 0; background: #fff; }
+      ${pageCss(w, h)}
       .page { position: relative; width: ${w}mm; height: ${(h - 0.4).toFixed(2)}mm; overflow: hidden; }
       .page img { position: absolute; left: 0; top: 0; width: ${wm}mm; height: ${hm}mm; image-rendering: crisp-edges; image-rendering: pixelated; }
     </style></head><body><div class="page"><img src="${url}" alt=""></div></body></html>`);
@@ -425,8 +412,7 @@ export function init() {
     const h = (labelH - 0.4).toFixed(1);
 
     printInFrame(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-      @page { size: ${labelW}mm ${labelH}mm; margin: 0; }
-      html, body { margin: 0; padding: 0; background: #fff; }
+      ${pageCss(labelW, labelH)}
       .lbl { width: ${labelW}mm; height: ${h}mm; overflow: hidden; background: #fff; }
       .lbl svg { display: block; width: 100%; height: 100%; }
     </style></head><body><div class="lbl">
@@ -464,8 +450,7 @@ export function init() {
     }
 
     printInFrame(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-      @page { size: ${LABEL_W}mm ${LABEL_H}mm; margin: 0; }
-      html, body { margin: 0; padding: 0; background: #fff; }
+      ${pageCss(LABEL_W, LABEL_H)}
       .lbl { width: ${LABEL_W}mm; height: ${LABEL_H}mm; overflow: hidden; background: #fff; }
       .lbl svg { display: block; width: ${LABEL_W}mm; height: ${LABEL_H}mm; }
     </style></head><body><div class="lbl">
@@ -493,8 +478,7 @@ export function init() {
     }
 
     printInFrame(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-      @page { size: ${SCC_WIDTH_MM}mm ${SCC_LABEL_H}mm; margin: 0; }
-      html, body { margin: 0; padding: 0; background: #fff; }
+      ${pageCss(SCC_WIDTH_MM, SCC_LABEL_H)}
       .lbl { display: grid; place-items: center; width: ${SCC_WIDTH_MM}mm; height: ${SCC_LABEL_H - 0.5}mm;
              padding: 2mm; box-sizing: border-box; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
       .lbl:not(:last-child) { break-after: page; page-break-after: always; }
@@ -508,8 +492,7 @@ export function init() {
     if (!iconUrl) return;
 
     printInFrame(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-      @page { size: ${ICON_LABEL_W}mm ${ICON_LABEL_H}mm; margin: 0; }
-      html, body { margin: 0; padding: 0; background: #fff; }
+      ${pageCss(ICON_LABEL_W, ICON_LABEL_H)}
       .lbl { width: ${ICON_LABEL_W}mm; height: ${ICON_LABEL_H}mm; overflow: hidden; display: block; }
       .pic { width: 100%; height: 100%; object-fit: contain; display: block; }
     </style></head><body><div class="lbl"><img class="pic" src="${iconUrl}" alt=""></div></body></html>`);

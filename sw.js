@@ -2,9 +2,9 @@
    Всегда сначала пробует сеть (так обновления сайта доходят сразу), а если сети нет, берёт копию с устройства.
    Запросы к Supabase и Google не затрагиваются.
    Версия 2 (ES-модули): свой кэш, чтобы не мешать основной версии сайта. */
-const CACHE = 'lcdr-hub-v2-esm-4';
+const CACHE = 'lcdr-hub-v2-esm-7';
 const CORE = [
-  './', 'index.html', 'css/style.css', 'css/mobile.css', 'icon.jpg', 'manifest.webmanifest',
+  './', 'index.html', 'css/style.css', 'icon.jpg', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
   'js/main.js', 'js/app.js', 'js/i18n.js', 'js/health.js',
   'js/core/config.js', 'js/core/supabase.js', 'js/core/util.js', 'js/core/print.js',

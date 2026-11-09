@@ -36,11 +36,6 @@ const I18N = {
 const t = createTranslator(I18N);
 
 const CSS = `
-#statsPage {
-  display: block; box-sizing: border-box; min-height: 100%; padding: 24px 0 30px; overflow: auto;
-  background: #000; color: #fff; font-family: "Segoe UI", Tahoma, Arial, sans-serif; font-size: 14px;
-}
-
 /* ----- Панель фильтров ----- */
 #statsPage .st-controls {
   display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: center;
@@ -48,18 +43,9 @@ const CSS = `
 }
 #statsPage .st-field { display: flex; flex-direction: column; gap: 4px; }
 #statsPage .st-field label { font-size: 12px; color: #9CA3AF; font-weight: 600; }
-#statsPage input[type=date] {
-  padding: 9px 12px; background: #111827; color: #fff; border: 1px solid #374151; border-radius: 8px;
-  font-family: inherit; font-size: 14px; color-scheme: dark; outline: none;
-}
-#statsPage input[type=date]:focus { border-color: #2563EB; }
+#statsPage input[type=date] { padding: 9px 12px; font-size: 14px; color-scheme: dark; }
 
-#statsPage .st-btn {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none;
-  padding: 10px 22px; border-radius: 8px; font-weight: 600; font-family: inherit; font-size: 14px;
-  cursor: pointer; box-shadow: 0 0 8px rgba(124,58,237,0.35);
-}
-#statsPage .st-btn:hover { filter: brightness(1.15); }
+#statsPage .st-btn { padding: 10px 22px; font-size: 14px; }
 #statsPage .st-btn:disabled { opacity: 0.6; cursor: wait; }
 #statsPage .st-btn-ghost {
   background: #111827; color: #fff; border: 1px solid #374151; padding: 10px 16px; border-radius: 8px;
@@ -85,10 +71,7 @@ const CSS = `
 #statsPage .st-check input { accent-color: #7c3aed; width: 16px; height: 16px; cursor: pointer; }
 
 /* ----- Карточки и таблицы ----- */
-#statsPage .st-card {
-  width: 95%; max-width: 1200px; margin: 0 auto 20px; background: #0e0e0e; border: 1px solid #1f2937;
-  border-radius: 10px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
-}
+#statsPage .st-card { width: 95%; max-width: 1200px; margin: 0 auto 20px; }
 #statsPage .st-head {
   cursor: pointer; user-select: none;
   padding: 12px 18px; background: #111827; color: #fff; font-weight: 700; font-size: 15px;
@@ -99,19 +82,9 @@ const CSS = `
 #statsPage .st-card.collapsed .st-body { display: none; }
 
 #statsPage .st-table-wrap { overflow-x: auto; }
-#statsPage table { width: 100%; border-collapse: collapse; background: #0e0e0e; }
-#statsPage th, #statsPage td {
-  padding: 10px 12px; text-align: center; border-bottom: 1px solid #1f2937; color: #E5E7EB;
-  font-size: 14px; white-space: nowrap;
-}
-#statsPage th {
-  background: #111827; color: #9CA3AF; font-size: 12px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.06em;
-}
+#statsPage th, #statsPage td { white-space: nowrap; }
 #statsPage td.name-cell { text-align: left; color: #fff; font-weight: 600; }
 #statsPage tr.person-row:hover td { background: rgba(255,255,255,0.03); }
-#statsPage .sum-col { color: #4d94ff; font-weight: 700; }
-#statsPage tfoot td { background: #111827; font-weight: 700; color: #4d94ff; }
 #statsPage .st-split { display: inline-flex; gap: 6px; align-items: center; justify-content: center; }
 #statsPage .st-sum { color: #fff; font-weight: 700; }
 #statsPage .st-sep { color: #6B7280; }

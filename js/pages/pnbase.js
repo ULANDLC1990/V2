@@ -6,6 +6,7 @@
 import { APP_CONFIG } from '../core/config.js';
 import { sb } from '../core/supabase.js';
 import { esc } from '../core/util.js';
+import { printInFrame, pageCss } from '../core/print.js';
 import { pick, onLangChange } from '../i18n.js';
 
 const CSS = `
@@ -170,9 +171,8 @@ function printLabels(data, pn, location) {
 
 function printFrame(labelHtml) {
   const docHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Label</title><style>
-@page{size:130mm 90mm;margin:0}
+${pageCss(130, 90)}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:#fff}
 .print-label{width:130mm;height:90mm;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;padding:6mm 6mm 5mm 6mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
 .print-block{width:100%;max-width:118mm;margin-bottom:3mm}
 .print-block-last{margin-bottom:0}
@@ -180,18 +180,12 @@ html,body{margin:0;padding:0;background:#fff}
 .print-value{width:100%;max-width:118mm;font-size:16pt;font-weight:900;line-height:1.1;white-space:normal;overflow:visible;overflow-wrap:anywhere;word-break:break-word}
 .print-barcode{display:block;width:118mm !important;max-width:118mm !important;height:26mm !important;margin:0 0 4mm 0}
 </style></head><body>${labelHtml}</body></html>`;
-  const old = document.getElementById('pbPrintFrame'); if (old) old.remove();
-  const f = document.createElement('iframe');
-  f.id = 'pbPrintFrame';
-  f.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none;';
-  document.body.appendChild(f);
-  const win = f.contentWindow;
-  win.document.open(); win.document.write(docHtml); win.document.close();
-  win.onafterprint = () => setTimeout(() => f.remove(), 500);
-  setTimeout(() => {
+  printInFrame(docHtml, {
+    id: 'pbPrintFrame',
     // якщо текст не влазить: спочатку зменшуємо шрифт, потім штрихкод
-    const el = win.document.querySelector('.print-label');
-    if (el) {
+    beforePrint: (win) => {
+      const el = win.document.querySelector('.print-label');
+      if (!el) return;
       const vals = el.querySelectorAll('.print-value'), bar = el.querySelector('.print-barcode');
       let size = 16, scale = 1;
       while (el.scrollHeight > el.clientHeight && (size > 7 || scale > 0.5)) {
@@ -199,8 +193,7 @@ html,body{margin:0;padding:0;background:#fff}
         else { scale -= 0.05; if (bar) bar.style.height = (26 * scale) + 'mm'; }
       }
     }
-    win.focus(); win.print();
-  }, 250);
+  });
 }
 
 // ===== дії =====

@@ -3,7 +3,7 @@
    Мову (uk / pl / en) задає сайт через i18n.js (підписка onLangChange у init). */
 import { resolveLang, onLangChange } from '../i18n.js';
 import { esc } from '../core/util.js';
-import { printInFrame } from '../core/print.js';
+import { printInFrame, pageCss } from '../core/print.js';
 
 // «Міст» до renderPreview, який живе всередині init(): show() викликає оболонка сайту
 let showImpl = () => {};
@@ -318,8 +318,7 @@ export function init() {
     const gsvg = (S.gstyle && S.gstyle !== 'off') ? `<svg class="guides" xmlns="${NS}" viewBox="0 0 ${S.pw} ${S.ph}" width="${S.pw}mm" height="${S.ph}mm">${guidesMarkup(+ox, +oy)}</svg>` : '';
     let pages = ''; for (let i = 0; i < copies; i++) pages += `<div class="page">${gsvg}${svg}</div>`;
     printInFrame(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LABEL</title><style>
-      @page { size: ${S.pw}mm ${S.ph}mm; margin: 0; }
-      html, body { margin: 0; padding: 0; background: #fff; }
+      ${pageCss(S.pw, S.ph)}
       image { image-rendering: crisp-edges; image-rendering: pixelated; }
       .page { position: relative; width: ${S.pw}mm; height: ${(S.ph - 0.4).toFixed(2)}mm; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
       .page svg { position: absolute; left: ${ox}mm; top: ${oy}mm; width: ${S.lw}mm; height: ${S.lh}mm; display: block; }
@@ -425,8 +424,7 @@ export function init() {
       const n = Math.min(500, Math.max(1, Math.round(S.copies) || 1));
       let pg = ''; for (let i = 0; i < n; i++) pg += `<div class="page"><img src="${r.url}"></div>`;
       printInFrame(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>LABEL</title><style>
-        @page { size: ${S.pw}mm ${S.ph}mm; margin: 0; }
-        html, body { margin: 0; padding: 0; background: #fff; }
+        ${pageCss(S.pw, S.ph)}
         .page { position: relative; width: ${S.pw}mm; height: ${(S.ph - 0.4).toFixed(2)}mm; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
         .page img { position: absolute; left: 0; top: 0; width: ${r.wmm}mm; height: ${r.hmm}mm; image-rendering: crisp-edges; image-rendering: pixelated; }
         .page:not(:last-child) { break-after: page; page-break-after: always; }

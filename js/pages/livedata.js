@@ -73,20 +73,11 @@ const I18N = {
 const t = createTranslator(I18N);
 
 const CSS = `
-#livePage {
-  position: relative; display: block; box-sizing: border-box;
-  min-height: 100%; padding: 24px 0 30px; overflow: auto;
-  background: #000; color: #fff;
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif; font-size: 14px;
-}
+#livePage { position: relative; }
 
 /* ----- Блоки ----- */
 #livePage .lv-wrap { width: 95%; max-width: 1200px; margin: 0 auto 24px; transition: all 0.3s ease; }
 #livePage .lv-wrap:first-child { margin-top: 0; }
-#livePage .lv-card {
-  background: #0e0e0e; border: 1px solid #1f2937; border-radius: 10px;
-  overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
-}
 #livePage .lv-block-title {
   display: flex; justify-content: space-between; align-items: center; gap: 12px;
   padding: 12px 18px; background: #111827; color: #fff;
@@ -104,11 +95,8 @@ const CSS = `
 /* ----- Пошук ----- */
 #livePage .lv-search-row { display: flex; gap: 10px; align-items: stretch; max-width: 720px; margin: 0 auto; }
 #livePage #search, #livePage #bulk-input {
-  flex: 1; min-width: 0; padding: 12px 14px; font-size: 15px;
-  background: #111827; color: #fff; border: 1px solid #374151; border-radius: 8px;
-  outline: none; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s;
+  flex: 1; min-width: 0; padding: 12px 14px; font-size: 15px; box-sizing: border-box; transition: border-color 0.2s;
 }
-#livePage #search:focus, #livePage #bulk-input:focus { border-color: #2563EB; }
 #livePage #bulk-input { min-height: 90px; resize: vertical; font-family: Consolas, 'Courier New', monospace; }
 #livePage .mode-switch { display: flex; flex-shrink: 0; border: 1px solid #374151; border-radius: 8px; overflow: hidden; }
 #livePage .mode-switch button {
@@ -117,30 +105,15 @@ const CSS = `
 }
 #livePage .mode-switch button.active { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; }
 #livePage .bulk-actions { display: flex; justify-content: center; max-width: 720px; margin: 10px auto 0; }
-#livePage #bulk-run {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none;
-  padding: 10px 26px; cursor: pointer; font-weight: 600; border-radius: 8px; font-family: inherit;
-  box-shadow: 0 0 8px rgba(124,58,237,0.35);
-}
-#livePage #bulk-run:hover { filter: brightness(1.15); }
+#livePage #bulk-run { padding: 10px 26px; }
 
 #livePage #search-result { margin-top: 16px; }
 #livePage .lv-msg { color: #9CA3AF; text-align: center; }
 
 /* ----- Таблицы ----- */
-#livePage table { width: 100%; border-collapse: collapse; background: #0e0e0e; }
-#livePage th, #livePage td {
-  padding: 10px 12px; text-align: center; border-bottom: 1px solid #1f2937; color: #E5E7EB; font-size: 14px;
-}
-#livePage th {
-  background: #111827; color: #9CA3AF; font-size: 12px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.06em;
-}
 #livePage tbody tr:hover { background: rgba(255,255,255,0.03); }
 #livePage td.ld-name { cursor: pointer; text-align: left; color: #fff; font-weight: 600; }
 #livePage td.ld-name:hover { color: #4d94ff; }
-#livePage .total-row td { font-weight: 700; background: #111827; color: #4d94ff; }
-#livePage .sum-col { color: #4d94ff; font-weight: 700; }
 
 #livePage #search-result table { border: 1px solid #1f2937; border-radius: 8px; overflow: hidden; margin-top: 4px; }
 #livePage .latest-record td { background: rgba(37,99,235,0.2); font-weight: 700; color: #fff; }
@@ -177,10 +150,7 @@ const CSS = `
   background: #111827; color: #fff; padding: 20px; border: 1px solid #374151; border-radius: 12px;
   max-height: 85%; overflow: auto; width: 90%; max-width: 1000px; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
 }
-#livePage #modal-close {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none;
-  padding: 8px 18px; cursor: pointer; font-weight: 600; margin-bottom: 14px; border-radius: 8px; font-family: inherit;
-}
+#livePage #modal-close { padding: 8px 18px; margin-bottom: 14px; }
 
 /* ----- Полноэкранный режим ----- */
 #livePage .lv-wrap.fullscreen-mode {
@@ -197,13 +167,6 @@ const CSS = `
 /* ----- Серийный номер: двойной клик скачивает фото ----- */
 #livePage td.lv-sn { cursor: pointer; font-family: Consolas, 'Courier New', monospace; }
 #livePage td.lv-sn:hover { color: #4d94ff; }
-.lv-toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: #111827; color: #F9FAFB; border: 1px solid #374151; padding: 10px 18px;
-  border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 10001;
-  opacity: 0; pointer-events: none; transition: opacity .2s;
-}
-.lv-toast.show { opacity: 1; }
 
 @media (max-width: 1080px) {
   #livePage .lv-wrap { width: 100%; }

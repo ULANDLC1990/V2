@@ -15,6 +15,21 @@
   --topbar-height: 2.75rem;
   --tabs-height: 2.1rem;
   --preview-vh: 36;   /* высота превью этикетки в % от высоты окна */
+
+  /* Единый вид элементов на всех страницах, на компьютере и на телефоне */
+  --ui-field-bg: #111827;        /* поля ввода и выпадающие списки */
+  --ui-border: #374151;          /* рамка полей и карточек */
+  --ui-line: #1f2937;            /* линии внутри таблиц */
+  --ui-card-bg: #0e0e0e;         /* карточки и таблицы */
+  --ui-head-bg: #111827;         /* заголовки карточек и таблиц */
+  --ui-muted: #9CA3AF;           /* приглушённый текст */
+  --ui-link: #4d94ff;            /* акцентный текст и ссылки */
+  --ui-focus: #2563EB;           /* рамка поля при вводе */
+  --ui-radius: 8px;              /* кнопки и поля */
+  --ui-radius-card: 10px;        /* карточки */
+  --ui-grad: linear-gradient(135deg, #4f46e5, #7c3aed);   /* главные кнопки */
+  --ui-glow: 0 0 8px rgba(124, 58, 237, 0.35);
+  --ui-shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
 /* Базовый размер текста подстраивается под ширину окна */
@@ -299,30 +314,34 @@ html, body {
 }
 .form-input {
   padding: 0.35rem 0.5rem;
-  border: 1px solid #9CA3AF;
-  border-radius: 5px;
-  background: #fff;
-  color: #111827;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  background: var(--ui-field-bg);
+  color: #fff;
+  color-scheme: dark;
   font: inherit;
   font-size: 0.85rem;
+  outline: none;
 }
+.form-input::placeholder { color: #6B7280; }
+.form-input:focus { border-color: var(--ui-focus); }
 .manual-input-card {
-  background: #0e0e0e;
-  border: 1px solid #D1D5DB;
-  border-radius: 10px;
+  background: var(--ui-card-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-card);
   padding: 0.8rem;
   margin-bottom: 0.8rem;
 }
 .btn {
   padding: 0.45rem 0.8rem;
   border: 0;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: var(--ui-radius);
+  background: var(--ui-grad);
   color: #fff;
   font: inherit;
   font-size: 0.85rem;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(124, 58, 237, 0.35);
+  box-shadow: var(--ui-glow);
 }
 .btn:hover {
   filter: brightness(1.15);
@@ -507,14 +526,14 @@ html, body {
 #rlSearch {
   padding: 0.5rem 0.7rem;
   min-width: 12rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--ui-field-bg);
   color: var(--text-light);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
   font: inherit;
   font-size: 0.85rem;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s;
 }
 .rl-form input::placeholder,
 #rlSearch::placeholder {
@@ -522,8 +541,7 @@ html, body {
 }
 .rl-form input:focus,
 #rlSearch:focus {
-  border-color: rgba(192, 132, 252, 0.7);
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+  border-color: var(--ui-focus);
 }
 #rlSearch {
   width: 100%;
@@ -533,14 +551,14 @@ html, body {
 
 .rl-add {
   padding: 0.5rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 10px;
-  background: linear-gradient(135deg, #6d28d9, #2563eb);
+  border: 0;
+  border-radius: var(--ui-radius);
+  background: var(--ui-grad);
   color: #fff;
   font: inherit;
   font-size: 0.85rem;
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(124, 58, 237, 0.45);
+  box-shadow: var(--ui-glow);
   transition: filter 0.2s;
 }
 .rl-add:hover {
@@ -669,10 +687,6 @@ html, body {
 }
 
 /* ===== PN Base: тёмная тема сайта (вместо светлых блоков из pnbase.js) ===== */
-#pnbasePage #pnbaseSection .manual-input-card {
-  background: #0e0e0e;
-  border-color: #1f2937;
-}
 #pnbasePage #pnbaseSection .manual-input-title {
   color: #4d94ff;
 }
@@ -691,17 +705,6 @@ html, body {
   border-radius: 8px;
   padding: 14px;
   margin: 12px 0;
-}
-#pnbasePage #pnbaseSection .form-input {
-  background: #111827;
-  color: #fff;
-  border: 1px solid #374151;
-}
-#pnbasePage #pnbaseSection .form-input::placeholder {
-  color: #6B7280;
-}
-#pnbasePage #pnbaseSection .form-input:focus {
-  border-color: #2563EB;
 }
 #pnbasePage #pnbaseSection .data-table {
   background: #0e0e0e;
@@ -834,4 +837,125 @@ div:has(> #pb_results)::-webkit-scrollbar {
 div:has(> #pb_results)::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
+}
+
+/* ===== Общие стили тёмных страниц «Live» и «Статистика» =====
+   Раньше эти блоки были скопированы в js/pages/livedata.js и js/pages/statistic.js.
+   Всё, что отличается, осталось в самих страницах. */
+#livePage, #statsPage {
+  display: block; box-sizing: border-box; min-height: 100%; padding: 24px 0 30px; overflow: auto;
+  background: #000; color: #fff; font-family: "Segoe UI", Tahoma, Arial, sans-serif; font-size: 14px;
+}
+#livePage .lv-card, #statsPage .st-card, .f-card {
+  background: var(--ui-card-bg); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-card);
+  overflow: hidden; box-shadow: var(--ui-shadow-card);
+}
+#livePage table, #statsPage table, #final1Page table, #final2Page table { width: 100%; border-collapse: collapse; background: var(--ui-card-bg); }
+#livePage th, #livePage td, #statsPage th, #statsPage td,
+#final1Page th, #final1Page td, #final2Page th, #final2Page td {
+  padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--ui-line); color: #E5E7EB; font-size: 14px;
+}
+#livePage th, #statsPage th, #final1Page th, #final2Page th {
+  background: var(--ui-head-bg); color: var(--ui-muted); font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+#livePage .sum-col, #statsPage .sum-col { color: var(--ui-link); font-weight: 700; }
+#livePage .total-row td, #statsPage tfoot td { background: var(--ui-head-bg); font-weight: 700; color: var(--ui-link); }
+/* Поля ввода */
+#livePage #search, #livePage #bulk-input, #statsPage input[type=date] {
+  background: var(--ui-field-bg); color: #fff; border: 1px solid var(--ui-border); border-radius: var(--ui-radius);
+  outline: none; font-family: inherit;
+}
+#livePage #search:focus, #livePage #bulk-input:focus, #statsPage input[type=date]:focus { border-color: var(--ui-focus); }
+/* Главные кнопки с фиолетовым градиентом */
+#livePage #bulk-run, #livePage #modal-close, #statsPage .st-btn {
+  background: var(--ui-grad); color: #fff; border: none; border-radius: var(--ui-radius);
+  font-family: inherit; font-weight: 600; cursor: pointer;
+}
+#livePage #bulk-run, #statsPage .st-btn { box-shadow: var(--ui-glow); }
+#livePage #bulk-run:hover, #statsPage .st-btn:hover { filter: brightness(1.15); }
+/* Всплывающая подсказка внизу экрана */
+.f-toast, .lv-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--ui-field-bg); color: #F9FAFB; border: 1px solid var(--ui-border); padding: 10px 18px;
+  border-radius: var(--ui-radius); font-size: 13px; font-weight: 600; z-index: 10001;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.f-toast.show, .lv-toast.show { opacity: 1; }
+
+/* ===== Телефон (раньше был отдельный css/mobile.css; классы на <html> ставит js/features/mobile.js) ===== */
+
+/* Тёмный фон под страницей: вместо белого при оттягивании края и в боковых полях повёрнутого телефона */
+html { background-color: #050a14; }
+html.touch-phone, html.touch-phone body { background-color: #050a14 !important; margin: 0; }
+
+/* Страница занимает весь экран (viewport-fit=cover в index.html), поэтому отступы под «чёлку» и полосу жестов задаём сами */
+html.touch-phone body {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html.touch-phone .topbar {
+  padding-left: max(env(safe-area-inset-left, 0px), 12px);
+  padding-right: calc(max(env(safe-area-inset-right, 0px), 12px) + 150px); /* место под флаги языков */
+}
+html.touch-phone .sidebar { padding-left: env(safe-area-inset-left, 0px); }
+
+/* ----- Меню ----- */
+html.is-phone .sidebar {
+  background: #0b0f1a !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  z-index: 1000 !important;
+  max-width: 86vw;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 8px 0 30px rgba(0, 0, 0, 0.6);
+}
+#menuBackdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 900;
+}
+html.is-phone .app:not(.collapsed) > #menuBackdrop { display: block; }
+html.is-phone .nav-item { min-height: 44px; }
+
+/* Поля ввода не меньше 16 пикселей, иначе iPhone приближает страницу при нажатии */
+html.is-phone input, html.is-phone select, html.is-phone textarea { font-size: 16px !important; }
+
+/* ----- Телефон с сенсорным экраном ----- */
+/* Страница не сдвигается вбок и не «белеет» при свайпе: горизонтально двигаются только таблицы */
+html.touch-phone, html.touch-phone body {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  touch-action: pan-y pinch-zoom; /* приближать щипком можно, уменьшать страницу меньше экрана нельзя (см. mobile.js) */
+}
+/* Кнопка меню не нужна: есть свайп */
+html.touch-phone #menuToggle { display: none !important; }
+
+/* Каждая таблица прокручивается сама (обёртку добавляет js/features/mobile.js) */
+html.touch-phone .tbl-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+}
+
+/* ----- Флаги языков в правом верхнем углу ----- */
+html.touch-phone #langFlags {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  right: calc(env(safe-area-inset-right, 0px) + 8px);
+  z-index: 1100;
+  gap: 6px;
+}
+html.touch-phone #langFlags button {
+  width: 44px;
+  height: 32px;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
 }
