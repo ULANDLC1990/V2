@@ -1,6 +1,6 @@
 {
-  "name": "&nbsp;",
-  "short_name": "&nbsp;",
+  "name": " ",
+  "short_name": " ",
   "description": "LCD Repair Center: печать этикеток, журнал ремонта, статистика",
   "start_url": "./",
   "scope": "./",
