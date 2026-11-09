@@ -203,15 +203,14 @@ function initRdl(host) {
 #spRdl .rd-prev{display:flex;justify-content:center;padding:14px;overflow:auto;background:#000;border-radius:10px;margin-bottom:.8rem}
 #spRdl #rdCv{background:#fff;border-radius:3px;flex:none;max-width:none}
 #spRdl .rd-cfg{display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-end;margin-bottom:.8rem}
-#spRdl .rd-cfg label{font-size:.7rem;opacity:.75;display:flex;flex-direction:column;gap:2px}
+#spRdl .rd-cfg label{display:flex}
 #spRdl .rd-cfg input,#spRdl .rd-cfg select{width:5.2rem}
 #spRdl .rd-cfg select{width:auto}
 #spRdl .rd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.7rem}
 #spRdl .rd-mod{border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:.6rem;display:flex;flex-direction:column;gap:.4rem}
-#spRdl .rd-mod h4{margin:0;font-size:.7rem;opacity:.6;font-weight:400}
 #spRdl .rd-nums{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
 #spRdl .rd-mod input[type=text],#spRdl .rd-nums input{width:100%;box-sizing:border-box}
-#spRdl .rd-chk{display:flex;gap:.8rem;font-size:.8rem;align-items:center}
+#spRdl .rd-chk{display:flex;gap:.8rem;font-size:.8rem;align-items:center;color:#E5E7EB}
 `;
   document.head.appendChild(st);
 
@@ -240,6 +239,13 @@ function initRdl(host) {
 </div>
 <div class="rd-grid" id="rdMods"></div>
 </div>`);
+
+  // Подписи над полями убраны: название поля показывается подсказкой при наведении
+  host.querySelectorAll('#spRdl .rd-cfg label').forEach((l) => {
+    const tn = [...l.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+    const ctl = l.querySelector('input, select');
+    if (tn && ctl) { ctl.title = tn.textContent.trim(); tn.remove(); }
+  });
 
   const $ = (id) => document.getElementById(id);
   const g = (k) => $('rd_' + k);
@@ -270,7 +276,8 @@ function initRdl(host) {
     F.forEach(f => {
       const B = f.type === 'barcode';
       const d = document.createElement('div'); d.className = 'rd-mod';
-      d.innerHTML = `<h4>${esc(f.name)}</h4><input type="text" class="form-input code-text" value="${esc(f.text)}">
+      d.title = f.name;
+      d.innerHTML = `<input type="text" class="form-input code-text" value="${esc(f.text)}">
         <div class="rd-nums">
           <input class="form-input" type="number" step="0.1" value="${f.x}" title="X mm">
           <input class="form-input" type="number" step="0.1" value="${f.y}" title="Y mm">
