@@ -49,21 +49,23 @@ const STATUS_MAP = {
   VV: 'V-BLOCK',
   VVV: 'V GRAY BLOCK',
   W: 'WADA OC',
+  UU: 'UN-USED',
   WTG: 'WAITING'
 };
 
 // Коды, которые сразу отправляют запись (без нажатия «+ Добавить»)
-const AUTO_SUBMIT_CODES = new Set(['OK', 'SCR', 'WTG']);
+const AUTO_SUBMIT_CODES = new Set(['OK', 'SCR', 'WTG', 'UU']);
 
 // Коды, при которых после сохранения печатается этикетка (в том числе в связке)
-const PRINT_CODES = new Set(['OK', 'SCR', 'WTG']);
+const PRINT_CODES = new Set(['OK', 'SCR', 'WTG', 'UU']);
 
 // Полные слова статуса, при которых печатается этикетка
-const PRINT_WORDS = ['OK', 'SCRAP', 'WAITING'];
+const PRINT_WORDS = ['OK', 'SCRAP', 'WAITING', 'UN-USED'];
 
 // Приоритет цвета для статуса из нескольких слов: SCRAP > WAITING > OK
 const PRIORITY_COLORS = [
   { word: 'SCRAP', color: '#ef4444', cls: 'st-scrap' },
+  { word: 'UN-USED', color: '#F527E4', cls: 'st-un-used' },
   { word: 'WAITING', color: '#facc15', cls: 'st-waiting' },
   { word: 'OK', color: '#22c55e', cls: 'st-ok' }
 ];
@@ -175,6 +177,15 @@ const LAYOUT_CSS = `
     transparent 100%);
   border-color: color-mix(in srgb, #ef4444 70%, transparent);
   box-shadow: inset 4px 0 0 #ef4444;
+  color: #fff;
+}
+#secretPage .rl-codes .rl-code.st-un-used {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, #F527E4 45%, transparent) 0%,
+    color-mix(in srgb, #F527E4 12%, transparent) 55%,
+    transparent 100%);
+  border-color: color-mix(in srgb, #F527E4 70%, transparent);
+  box-shadow: inset 4px 0 0 #F527E4;
   color: #fff;
 }
 
