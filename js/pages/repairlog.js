@@ -80,7 +80,7 @@ const STATUS_COLORS = {
 // Тексты интерфейса. Для языков без своего перевода берётся английский
 const T = {
   en: {
-    title: 'Repair Log', sn: 'Serial number', date: 'Date', time: 'Time', status: 'Status',
+    title: 'Repair Log', today: 'Today', year: 'This year', sn: 'Serial number', date: 'Date', time: 'Time', status: 'Status',
     add: '+ Add', statusPh: 'Status (OK, VV, H...)',
     search: 'Search by serial number (all records)', empty: 'No records',
     clear: 'Clear status', errLoad: 'Load error: ', errSave: 'Save error: ',
@@ -89,7 +89,7 @@ const T = {
     offline: 'No connection. Records are saved on this device and will be sent automatically.', pending: ' Waiting to send: ', sent: 'Sent: ', labelsLeft: 'Connection restored, records sent. Labels were NOT printed for:\n', sendErr: ' Send error: ', baseInfo: 'PN base on this device: ', baseRows: ' rows, updated ', baseLoading: 'not loaded yet'
   },
   uk: {
-    title: 'Журнал ремонту', sn: 'Серійний номер', date: 'Дата', time: 'Час', status: 'Статус',
+    title: 'Журнал ремонту', today: 'Сьогодні', year: 'Цього року', sn: 'Серійний номер', date: 'Дата', time: 'Час', status: 'Статус',
     add: '+ Додати', statusPh: 'Статус (OK, VV, H...)',
     search: 'Пошук за серійним номером (уся база)', empty: 'Немає записів',
     clear: 'Очистити статус', errLoad: 'Помилка завантаження: ', errSave: 'Помилка збереження: ',
@@ -98,7 +98,7 @@ const T = {
     offline: 'Немає зв\'язку з базою. Записи збережено на цьому пристрої й відправляться самі.', pending: ' Чекають відправки: ', sent: 'Відправлено: ', labelsLeft: 'Зв\'язок відновлено, записи відправлено. Етикетки НЕ надруковано для:\n', sendErr: ' Помилка відправки: ', baseInfo: 'База PN на пристрої: ', baseRows: ' рядків, оновлена ', baseLoading: 'ще не завантажена'
   },
   pl: {
-    title: 'Dziennik napraw', sn: 'Numer seryjny', date: 'Data', time: 'Czas', status: 'Status',
+    title: 'Dziennik napraw', today: 'Dzisiaj', year: 'W tym roku', sn: 'Numer seryjny', date: 'Data', time: 'Czas', status: 'Status',
     add: '+ Dodaj', statusPh: 'Status (OK, VV, H...)',
     search: 'Szukaj po numerze seryjnym (cała baza)', empty: 'Brak wpisów',
     clear: 'Wyczyść status', errLoad: 'Błąd ładowania: ', errSave: 'Błąd zapisu: ',
@@ -218,6 +218,16 @@ const LAYOUT_CSS = `
   white-space: nowrap;
 }
 
+#secretPage .rl-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0 0 1rem; }
+#secretPage .rl-head h2 { margin: 0; }
+#secretPage .rl-counts { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+#secretPage .rl-count {
+  display: flex; align-items: baseline; gap: 0.5rem; padding: 0.3rem 0.8rem;
+  border: 1px solid var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-field-bg);
+}
+#secretPage .rl-count span { font-size: 0.75rem; color: var(--ui-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+#secretPage .rl-count b { font-size: 1.15rem; font-variant-numeric: tabular-nums; color: #fff; }
+
 #secretPage .rl-base { margin: 0 0 0.5rem 0; font-size: 0.78rem; opacity: 0.6; }
 
 #secretPage .rl-net {
@@ -246,7 +256,9 @@ const LAYOUT_CSS = `
 // Записи без связи ждут в очереди на этом устройстве и отправляются сами, когда связь вернётся.
 const QUEUE_KEY = 'rl_queue_v1';
 const CACHE_KEY = 'rl_today_cache_v1';
+const COUNT_KEY = 'rl_counts_v1';
 
+let cntToday, cntYear;
 let page, form, snInput, statusInput, searchInput, codesBox, body, netBox, baseBox, tip;
 let allRows = [];
 let searchTimer = null;
@@ -332,6 +344,8 @@ function expandStatus(input) {
 function applyLang() {
   const t = tr();
   page.querySelector('#rlTitle').textContent = t.title;
+  page.querySelector('#rlCntTodayLbl').textContent = t.today;
+  page.querySelector('#rlCntYearLbl').textContent = t.year;
   snInput.placeholder = t.sn;
   statusInput.placeholder = t.statusPh;
   page.querySelector('#rlAdd').textContent = t.add;
@@ -344,6 +358,7 @@ function applyLang() {
   render();
   updateNet();
   updateBaseInfo();
+  showCounts();
 }
 
 // Записи из очереди (ещё не отправлены) показываются сверху с пометкой ⏳ (🖨✕ = этикетка не напечатана)
@@ -355,6 +370,7 @@ function pendingRows() {
 }
 
 function render() {
+  showCounts();
   const rows = pendingRows().concat(allRows);
   if (!rows.length) {
     body.innerHTML = `<tr><td colspan="4" class="rl-empty">${tr().empty}</td></tr>`;
@@ -393,6 +409,39 @@ function updateNet(note) {
   }
 }
 
+// ===== Счётчики: записей за сегодня и за этот год (все статусы) =====
+function readCounts() {
+  try {
+    const c = JSON.parse(localStorage.getItem(COUNT_KEY) || 'null');
+    const d = ymd(new Date());
+    if (c && c.day === d && c.year === d.slice(0, 4)) return c;
+  } catch (e) {}
+  return null;
+}
+// Показывает числа из памяти плюс записи из очереди, которые ещё не дошли до базы
+function showCounts() {
+  if (!cntToday) return;
+  const c = readCounts();
+  if (!c) { cntToday.textContent = '–'; cntYear.textContent = '–'; return; }
+  const q = readQueue().length;
+  cntToday.textContent = (c.today + q).toLocaleString();
+  cntYear.textContent = (c.yearN + q).toLocaleString();
+}
+async function refreshCounts() {
+  if (navigator.onLine === false || Date.now() < netDownUntil) { showCounts(); return; }
+  const d = ymd(new Date()), y = d.slice(0, 4);
+  try {
+    const db = sb();
+    const [a, b] = await Promise.all([
+      tmo(db.from(TABLE).select('id', { count: 'exact', head: true }).eq('repair_date', d), 8000),
+      tmo(db.from(TABLE).select('id', { count: 'exact', head: true }).gte('repair_date', y + '-01-01').lte('repair_date', y + '-12-31'), 8000)
+    ]);
+    if (a.error || b.error || a.count == null || b.count == null) throw (a.error || b.error || new Error('no count'));
+    localStorage.setItem(COUNT_KEY, JSON.stringify({ day: d, year: y, today: a.count, yearN: b.count }));
+  } catch (e) {}
+  showCounts();
+}
+
 // Без поиска: записи за сегодня. С поиском: по всей таблице, по SN.
 async function load() {
   const q = searchInput.value.trim().toUpperCase();
@@ -419,6 +468,7 @@ async function load() {
   allRows = data;
   if (!q) cacheRows();
   render();
+  if (!q) refreshCounts();
 }
 
 // Следующий номер за день: 1, 2, 3... и снова с 1 на следующий день
@@ -579,7 +629,13 @@ export function init() {
 
   page.innerHTML = `
     <div class="rl-wrap">
-      <h2 id="rlTitle"></h2>
+      <div class="rl-head">
+        <h2 id="rlTitle"></h2>
+        <div class="rl-counts">
+          <div class="rl-count"><span id="rlCntTodayLbl"></span><b id="rlCntToday">–</b></div>
+          <div class="rl-count"><span id="rlCntYearLbl"></span><b id="rlCntYear">–</b></div>
+        </div>
+      </div>
       <div id="rlNet" class="rl-net" style="display:none"></div>
       <div id="rlBase" class="rl-base"></div>
       <div class="rl-top">
@@ -619,6 +675,8 @@ export function init() {
   body = page.querySelector('#rlBody');
   netBox = page.querySelector('#rlNet');
   baseBox = page.querySelector('#rlBase');
+  cntToday = page.querySelector('#rlCntToday');
+  cntYear = page.querySelector('#rlCntYear');
 
   // Мгновенная подсказка вместо стандартного title
   tip = document.createElement('div');
