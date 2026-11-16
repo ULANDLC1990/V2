@@ -80,7 +80,7 @@ const STATUS_COLORS = {
 // Тексты интерфейса. Для языков без своего перевода берётся английский
 const T = {
   en: {
-    title: 'Repair Log', today: 'Today', year: 'This year', sn: 'Serial number', date: 'Date', time: 'Time', status: 'Status',
+    title: 'Repair Log', today: 'Today', year: 'Year', sn: 'Serial number', date: 'Date', time: 'Time', status: 'Status',
     add: '+ Add', statusPh: 'Status (OK, VV, H...)',
     search: 'Search by serial number (all records)', empty: 'No records',
     clear: 'Clear status', errLoad: 'Load error: ', errSave: 'Save error: ',
@@ -89,7 +89,7 @@ const T = {
     offline: 'No connection. Records are saved on this device and will be sent automatically.', pending: ' Waiting to send: ', sent: 'Sent: ', labelsLeft: 'Connection restored, records sent. Labels were NOT printed for:\n', sendErr: ' Send error: ', baseInfo: 'PN base on this device: ', baseRows: ' rows, updated ', baseLoading: 'not loaded yet'
   },
   uk: {
-    title: 'Журнал ремонту', today: 'Сьогодні', year: 'Цього року', sn: 'Серійний номер', date: 'Дата', time: 'Час', status: 'Статус',
+    title: 'Журнал ремонту', today: 'Сьогодні', year: 'Рік', sn: 'Серійний номер', date: 'Дата', time: 'Час', status: 'Статус',
     add: '+ Додати', statusPh: 'Статус (OK, VV, H...)',
     search: 'Пошук за серійним номером (уся база)', empty: 'Немає записів',
     clear: 'Очистити статус', errLoad: 'Помилка завантаження: ', errSave: 'Помилка збереження: ',
@@ -98,7 +98,7 @@ const T = {
     offline: 'Немає зв\'язку з базою. Записи збережено на цьому пристрої й відправляться самі.', pending: ' Чекають відправки: ', sent: 'Відправлено: ', labelsLeft: 'Зв\'язок відновлено, записи відправлено. Етикетки НЕ надруковано для:\n', sendErr: ' Помилка відправки: ', baseInfo: 'База PN на пристрої: ', baseRows: ' рядків, оновлена ', baseLoading: 'ще не завантажена'
   },
   pl: {
-    title: 'Dziennik napraw', today: 'Dzisiaj', year: 'W tym roku', sn: 'Numer seryjny', date: 'Data', time: 'Czas', status: 'Status',
+    title: 'Dziennik napraw', today: 'Dzisiaj', year: 'Rok', sn: 'Numer seryjny', date: 'Data', time: 'Czas', status: 'Status',
     add: '+ Dodaj', statusPh: 'Status (OK, VV, H...)',
     search: 'Szukaj po numerze seryjnym (cała baza)', empty: 'Brak wpisów',
     clear: 'Wyczyść status', errLoad: 'Błąd ładowania: ', errSave: 'Błąd zapisu: ',
@@ -226,6 +226,11 @@ const LAYOUT_CSS = `
   border: 1px solid var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-field-bg);
 }
 #secretPage .rl-count span { font-size: 0.75rem; color: var(--ui-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+#secretPage .rl-count select {
+  background: transparent; color: #fff; border: 0; font: inherit; font-size: 0.95rem; font-weight: 700;
+  color-scheme: dark; outline: none; cursor: pointer; padding: 0;
+}
+#secretPage .rl-count select option { background: #111827; color: #fff; }
 #secretPage .rl-count b { font-size: 1.15rem; font-variant-numeric: tabular-nums; color: #fff; }
 
 #secretPage .rl-base { margin: 0 0 0.5rem 0; font-size: 0.78rem; opacity: 0.6; }
@@ -256,9 +261,10 @@ const LAYOUT_CSS = `
 // Записи без связи ждут в очереди на этом устройстве и отправляются сами, когда связь вернётся.
 const QUEUE_KEY = 'rl_queue_v1';
 const CACHE_KEY = 'rl_today_cache_v1';
-const COUNT_KEY = 'rl_counts_v1';
+const COUNT_KEY = 'rl_counts_v2';
+const YEAR_KEY = 'rl_count_year_v1';   // выбранный год для счётчика; 'cur' = всегда текущий
 
-let cntToday, cntYear;
+let cntToday, cntYear, yearSel;
 let page, form, snInput, statusInput, searchInput, codesBox, body, netBox, baseBox, tip;
 let allRows = [];
 let searchTimer = null;
@@ -409,27 +415,41 @@ function updateNet(note) {
   }
 }
 
-// ===== Счётчики: записей за сегодня и за этот год (все статусы) =====
+// ===== Счётчики: записей за сегодня и за выбранный год (все статусы) =====
+// Год по умолчанию текущий и сам меняется в новом году. Выбранный вручную год запоминается.
+function curYear() { return String(new Date().getFullYear()); }
+function selectedYear() {
+  let v = 'cur';
+  try { v = localStorage.getItem(YEAR_KEY) || 'cur'; } catch (e) {}
+  return /^\d{4}$/.test(v) ? v : curYear();
+}
+function fillYears() {
+  const cy = +curYear(), sel = selectedYear();
+  let html = '';
+  for (let y = cy; y >= cy - 6; y--) html += `<option value="${y}"${String(y) === sel ? ' selected' : ''}>${y}</option>`;
+  if (+sel < cy - 6) html += `<option value="${sel}" selected>${sel}</option>`;
+  yearSel.innerHTML = html;
+}
 function readCounts() {
   try {
     const c = JSON.parse(localStorage.getItem(COUNT_KEY) || 'null');
-    const d = ymd(new Date());
-    if (c && c.day === d && c.year === d.slice(0, 4)) return c;
+    if (c && c.day === ymd(new Date())) return c;
   } catch (e) {}
   return null;
 }
 // Показывает числа из памяти плюс записи из очереди, которые ещё не дошли до базы
 function showCounts() {
   if (!cntToday) return;
-  const c = readCounts();
-  if (!c) { cntToday.textContent = '–'; cntYear.textContent = '–'; return; }
-  const q = readQueue().length;
-  cntToday.textContent = (c.today + q).toLocaleString();
-  cntYear.textContent = (c.yearN + q).toLocaleString();
+  fillYears();
+  const c = readCounts(), y = selectedYear();
+  cntToday.textContent = c && c.today != null ? (c.today + readQueue().length).toLocaleString() : '–';
+  const n = c && c.years ? c.years[y] : null;
+  // записи из очереди относятся к текущему году
+  cntYear.textContent = n != null ? (n + (y === curYear() ? readQueue().length : 0)).toLocaleString() : '–';
 }
 async function refreshCounts() {
   if (navigator.onLine === false || Date.now() < netDownUntil) { showCounts(); return; }
-  const d = ymd(new Date()), y = d.slice(0, 4);
+  const d = ymd(new Date()), y = selectedYear();
   try {
     const db = sb();
     const [a, b] = await Promise.all([
@@ -437,7 +457,9 @@ async function refreshCounts() {
       tmo(db.from(TABLE).select('id', { count: 'exact', head: true }).gte('repair_date', y + '-01-01').lte('repair_date', y + '-12-31'), 8000)
     ]);
     if (a.error || b.error || a.count == null || b.count == null) throw (a.error || b.error || new Error('no count'));
-    localStorage.setItem(COUNT_KEY, JSON.stringify({ day: d, year: y, today: a.count, yearN: b.count }));
+    const old = readCounts();
+    const years = Object.assign({}, old && old.years, { [y]: b.count });
+    localStorage.setItem(COUNT_KEY, JSON.stringify({ day: d, today: a.count, years }));
   } catch (e) {}
   showCounts();
 }
@@ -633,7 +655,7 @@ export function init() {
         <h2 id="rlTitle"></h2>
         <div class="rl-counts">
           <div class="rl-count"><span id="rlCntTodayLbl"></span><b id="rlCntToday">–</b></div>
-          <div class="rl-count"><span id="rlCntYearLbl"></span><b id="rlCntYear">–</b></div>
+          <div class="rl-count"><span id="rlCntYearLbl"></span><select id="rlYearSel"></select><b id="rlCntYear">–</b></div>
         </div>
       </div>
       <div id="rlNet" class="rl-net" style="display:none"></div>
@@ -677,6 +699,13 @@ export function init() {
   baseBox = page.querySelector('#rlBase');
   cntToday = page.querySelector('#rlCntToday');
   cntYear = page.querySelector('#rlCntYear');
+  yearSel = page.querySelector('#rlYearSel');
+  yearSel.addEventListener('change', () => {
+    const y = yearSel.value;
+    try { localStorage.setItem(YEAR_KEY, y === String(new Date().getFullYear()) ? 'cur' : y); } catch (e) {}
+    showCounts();
+    refreshCounts();
+  });
 
   // Мгновенная подсказка вместо стандартного title
   tip = document.createElement('div');
