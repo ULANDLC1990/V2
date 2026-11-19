@@ -572,8 +572,9 @@ const fileLabel = (serial, idx) => `${serial}_${idx}.jpg`;
 async function nextIndex(serial) {
   let names = listed;
   try {
-    const { data } = await sb().storage.from(BUCKET).list('', { limit: 100, search: serial });
-    if (data) names = data.map(f => f.name);
+    // Весь список (как в refreshList): поиск по части имени в хранилище работает только с начала имени, а оно начинается с фамилии
+    const { data, error } = await sb().storage.from(BUCKET).list('', { limit: 1000 });
+    if (!error && data) names = data.map(f => f.name);
   } catch (e) {}
   const have = new Set(names.map(parseName).filter(p => p && p.serial === serial).map(p => p.idx));
   return have.has(1) ? 2 : 1;
