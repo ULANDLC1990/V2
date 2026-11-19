@@ -530,11 +530,18 @@ function lvToast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
-// Файлы в бакете называются ФАМИЛИЯ__серийный.jpg. Ищем по серийному номеру, самый свежий файл первым
+// Файлы в бакете: ФАМИЛИЯ__серийный.jpg (первое фото, до ремонта) и ФАМИЛИЯ__серийный__2.jpg (второе, после ремонта).
+// Двойной клик скачивает все фото этого номера: серийный_1.jpg, серийный_2.jpg
+function photoIndex(name, sn) {
+  const m = /^[A-Za-z]+__(.+?)(?:__(\d+))?\.jpg$/.exec(name);
+  if (!m || m[1].toLowerCase() !== sn.toLowerCase()) return 0;
+  return m[2] ? +m[2] : 1;
+}
+const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+
 async function downloadPhoto(rawSn) {
   const sn = String(rawSn || '').trim().replace(/[^A-Za-z0-9_-]/g, '');
   if (!sn) return;
-  const tail = ('__' + sn + '.jpg').toLowerCase();
   try {
     const client = sb();
     const { data, error } = await client.storage.from('photos').list('', {
@@ -543,25 +550,37 @@ async function downloadPhoto(rawSn) {
     });
     if (error) throw error;
 
-    const file = (data || []).find(f => f.name.toLowerCase().endsWith(tail));
-    if (!file) { lvToast(t('phNone', { n: sn })); return; }
+    // По одному файлу на каждый номер фото (если вдруг их несколько, берём самый свежий), по порядку 1, 2...
+    const byIdx = new Map();
+    (data || []).forEach(f => {
+      const i = photoIndex(f.name, sn);
+      if (i && !byIdx.has(i)) byIdx.set(i, f);
+    });
+    const files = [...byIdx.entries()].sort((a, b) => a[0] - b[0]);
+    if (!files.length) { lvToast(t('phNone', { n: sn })); return; }
 
-    const { data: blob, error: e2 } = await client.storage.from('photos').download(file.name);
-    if (e2 || !blob) throw e2 || new Error('empty file');
+    const saved = [];
+    for (let k = 0; k < files.length; k++) {
+      const [i, file] = files[k];
+      const { data: blob, error: e2 } = await client.storage.from('photos').download(file.name);
+      if (e2 || !blob) throw e2 || new Error('empty file');
 
-    const saveName = file.name.split('__')[1] || (sn + '.jpg'); // серийный номер.jpg, как он сохранён
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = saveName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    lvToast(t('phOk', { n: saveName }));
+      const saveName = sn + '_' + i + '.jpg';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = saveName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      saved.push(saveName);
 
-    // Отметка «скачано» для вкладки Photo (таблица photo_downloads). Ошибка отметки не мешает скачиванию
-    try { await client.rpc('mark_photo_downloaded', { p_name: file.name }); } catch (e) {}
+      // Отметка «скачано» для вкладки Photo (таблица photo_downloads). Ошибка отметки не мешает скачиванию
+      try { await client.rpc('mark_photo_downloaded', { p_name: file.name }); } catch (e) {}
+      if (k < files.length - 1) await pause(500); // браузеру нужна пауза между несколькими скачиваниями
+    }
+    lvToast(t('phOk', { n: saved.join(', ') }));
   } catch (e) {
     console.error('photo download:', e);
     lvToast(t('phErr'));
