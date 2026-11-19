@@ -1,7 +1,7 @@
 /* Вкладка «Photo»: нажимаешь фамилию работника, сканируешь серийный номер ТВ и делаешь фото.
    Файл сохраняется в Supabase Storage (бакет photos) как ФАМИЛИЯ__серийный.jpg (первое фото, «до ремонта»)
-   и ФАМИЛИЯ__серийный__2.jpg (второе фото, «после ремонта»). В списке и при скачивании они называются
-   серийный_1.jpg и серийный_2.jpg (например tpfdg341234_1.jpg).
+   и ФАМИЛИЯ__серийный__2.jpg, __3.jpg... (следующие фото). В списке и при скачивании они называются
+   серийный_1.jpg, серийный_2.jpg... (например tpfdg341234_1.jpg).
    Фото хранится, пока его не удалят кнопкой «Удалить» (или «Удалить все»).
    Контейнер: <section id="photoPage">. Работает по HTTPS или на localhost.
    Для удаления в Supabase нужна политика на storage.objects (см. инструкцию).
@@ -527,7 +527,7 @@ async function takeShot() {
   const name = await workerFor(serial);
   const key = workerKey(name) || NO_NAME;
   $('ph-snap').disabled = true;
-  // Какое это фото для номера: первого ещё нет — первое; первое есть — второе; оба есть — заменяется второе
+  // Какое это фото для номера: каждый новый снимок добавляется следующим (_1, _2, _3...), старые не заменяются
   const idx = await nextIndex(serial);
   const objectName = buildName(key, serial, idx);
   const shownName = fileLabel(serial, idx);
@@ -576,8 +576,8 @@ async function nextIndex(serial) {
     const { data, error } = await sb().storage.from(BUCKET).list('', { limit: 1000 });
     if (!error && data) names = data.map(f => f.name);
   } catch (e) {}
-  const have = new Set(names.map(parseName).filter(p => p && p.serial === serial).map(p => p.idx));
-  return have.has(1) ? 2 : 1;
+  const mine = names.map(parseName).filter(p => p && p.serial === serial).map(p => p.idx);
+  return mine.length ? Math.max(...mine) + 1 : 1;
 }
 
 async function refreshList() {
