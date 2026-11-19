@@ -1,6 +1,7 @@
 /* Вкладка «Photo»: нажимаешь фамилию работника, сканируешь серийный номер ТВ и делаешь фото.
-   Файл сохраняется в Supabase Storage (бакет photos) как ФАМИЛИЯ__серийный.jpg,
-   а в списке и при скачивании показывается как серийный.jpg (например tpfdg341234.jpg).
+   Файл сохраняется в Supabase Storage (бакет photos) как ФАМИЛИЯ__серийный.jpg (первое фото, «до ремонта»)
+   и ФАМИЛИЯ__серийный__2.jpg (второе фото, «после ремонта»). В списке и при скачивании они называются
+   серийный_1.jpg и серийный_2.jpg (например tpfdg341234_1.jpg).
    Фото хранится, пока его не удалят кнопкой «Удалить» (или «Удалить все»).
    Контейнер: <section id="photoPage">. Работает по HTTPS или на localhost.
    Для удаления в Supabase нужна политика на storage.objects (см. инструкцию).
@@ -525,9 +526,12 @@ async function takeShot() {
   // Фамилия по этому номеру из рабочей таблицы Final II
   const name = await workerFor(serial);
   const key = workerKey(name) || NO_NAME;
-  const objectName = `${key}__${serial}.jpg`;
-  msg(t('saving', { f: serial + '.jpg' }));
   $('ph-snap').disabled = true;
+  // Какое это фото для номера: первого ещё нет — первое; первое есть — второе; оба есть — заменяется второе
+  const idx = await nextIndex(serial);
+  const objectName = buildName(key, serial, idx);
+  const shownName = fileLabel(serial, idx);
+  msg(t('saving', { f: shownName }));
 
   try {
     const { error } = await sb().storage.from(BUCKET).upload(objectName, blob, {
@@ -537,9 +541,12 @@ async function takeShot() {
     });
     if (error) throw error;
     // Повторный снимок этого номера: убираем прежний файл, если он был записан под другой фамилией
-    const stale = listed.filter(n => n !== objectName && n.endsWith('__' + serial + '.jpg'));
+    const stale = listed.filter(n => {
+      const q = parseName(n);
+      return n !== objectName && q && q.serial === serial && q.idx === idx;
+    });
     if (stale.length) { try { await removeFiles(stale); } catch (e) {} }
-    msg(t('saved', { f: serial + '.jpg', n: name || t('noName') }));
+    msg(t('saved', { f: shownName, n: name || t('noName') }));
     refreshAuto();
     refreshList();
   } catch (err) {
@@ -551,11 +558,25 @@ async function takeShot() {
 
 /* ---------- Список, скачивание и удаление ---------- */
 
-// ФАМИЛИЯ__серийный.jpg -> { worker, serial }
+// ФАМИЛИЯ__серийный.jpg (первое фото) и ФАМИЛИЯ__серийный__2.jpg (второе) -> { worker, serial, idx }
 function parseName(name) {
-  const m = /^([A-Z]+)__([A-Za-z0-9_-]+)\.jpg$/.exec(name);
+  const m = /^([A-Z]+)__([A-Za-z0-9_-]+?)(?:__(\d+))?\.jpg$/.exec(name);
   if (!m) return null;
-  return { worker: labelForKey(m[1]), serial: m[2] };
+  return { worker: labelForKey(m[1]), serial: m[2], idx: m[3] ? +m[3] : 1 };
+}
+// Имя объекта в хранилище и имя файла для человека
+const buildName = (key, serial, idx) => `${key}__${serial}${idx > 1 ? '__' + idx : ''}.jpg`;
+const fileLabel = (serial, idx) => `${serial}_${idx}.jpg`;
+
+// Номер следующего фото для серийного номера (смотрим свежий список в хранилище)
+async function nextIndex(serial) {
+  let names = listed;
+  try {
+    const { data } = await sb().storage.from(BUCKET).list('', { limit: 100, search: serial });
+    if (data) names = data.map(f => f.name);
+  } catch (e) {}
+  const have = new Set(names.map(parseName).filter(p => p && p.serial === serial).map(p => p.idx));
+  return have.has(1) ? 2 : 1;
 }
 
 async function refreshList() {
@@ -590,7 +611,7 @@ async function refreshList() {
     const mark = done ? `<span title="${esc(t('dlTitle', { d: new Date(d).toLocaleString() }))}">✔</span>` : '';
     return `<tr>
       <td>${esc(idx.get(x.p.serial.toUpperCase()) || x.p.worker)}</td>
-      <td>${esc(x.p.serial)}.jpg</td>
+      <td>${esc(fileLabel(x.p.serial, x.p.idx))}</td>
       <td>${esc(x.f.updated_at ? new Date(x.f.updated_at).toLocaleString() : '')}</td>
       <td class="ph-done">${mark}</td>
       <td class="acts">
@@ -612,7 +633,7 @@ async function refreshList() {
 async function downloadFile(name) {
   const p = parseName(name);
   if (!p) return;
-  const fileName = p.serial + '.jpg';
+  const fileName = fileLabel(p.serial, p.idx);
   msg(t('loading', { f: fileName }));
 
   const { data, error } = await sb().storage.from(BUCKET).download(name);
@@ -643,7 +664,7 @@ async function deleteFile(name) {
   if (!p) return;
   try {
     await removeFiles([name]);
-    msg(t('deleted', { f: p.serial + '.jpg' }));
+    msg(t('deleted', { f: fileLabel(p.serial, p.idx) }));
   } catch (err) {
     msg(t('delErr', { e: err.message || err }));
   }
